@@ -1,0 +1,13 @@
+{
+  "name": "MyMusic",
+  "description": "Music is free for all",
+  "start_url": "/",
+  "lang": "ru-RU",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "static/img/headphones.png",
+      "sizes": "192x192"
+    }
+  ]
+}
