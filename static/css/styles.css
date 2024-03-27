@@ -58,6 +58,9 @@ html {
     border: solid black;
 }
 
+#result_table {
+    width: 98%;
+}
 audio {
     width: 100%;
     margin: 5px;

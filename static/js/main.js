@@ -127,6 +127,7 @@ const result_table = document.getElementById("result_table");
 
 //login
 async function login() {
+  console.log("Inside login func");
   user.username = login_input.value;
   user.password = password_input.value;
 
@@ -160,6 +161,16 @@ login_button.addEventListener("click", login);
 
 //logout
 async function logout() {
+  //logout по токену
+  let response = await fetch(DOMAIN + "/auth/token/logout", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json;charset=utf-8",
+        Authorization: "Token " + getCookie("auth_token"),
+      }
+    });
+
   user = {};
   userToken = "";
   login_screen.style.cssText = "display:block !important";
@@ -188,12 +199,14 @@ async function check_logged() {
       h_username.innerHTML = user.username;
 
       await load_playlists();
-      await draw_playlist(allPlaylists[0]);
+      if (allPlaylists.length > 0) {
+        await draw_playlist(allPlaylists[0]);
+      };
     } else {
       //alert("Ошибка HTTP: " + response.status);
     }
   } catch (err) {
-    alert("NetworkError");
+    console.log(err);
     return;
   }
 }
@@ -210,9 +223,14 @@ async function load_playlists() {
 
   if (response.ok) {
     let json_data = await response.json();
-    allPlaylists = json_data;
-  }
-}
+    if (json_data.length > 0) {
+      allPlaylists = json_data;
+    } else {
+      allPlaylists = [];
+      await create_playlist();
+    };
+  };
+};
 
 async function play_song() {
   if (this.id !== undefined) {
@@ -392,6 +410,10 @@ player.onended = async function () {
 };
 
 async function add_song_to_playlist() {
+  if (allPlaylists.length == 0) {
+    alert("Некуда добавлять! Создайте плейлист.");
+    return;
+  };
   // находим объект песни в результатах по url, содеожащимуся в id кнопки
   let song = {};
   for (item in search_results) {
@@ -461,7 +483,7 @@ async function search() {
         new_tr.appendChild(new_song_title);
 
         new_song_title.id = `rs_song_${json_data[item].url}`;
-        new_song_title.className = "pl-song-title srch";
+        new_song_title.className = "pl-song-title srch text-break";
         new_song_title.textContent = json_data[item].name;
         new_song_title.addEventListener("click", play_song);
 
@@ -590,12 +612,18 @@ async function delete_playlist() {
       );
       if (resp.ok) {
         console.log("Playlist deleted!");
-        load_playlists();
+        await load_playlists();
         if (allPlaylists.length > 0) {
           playList = allPlaylists[0];
-          draw_playlist(playList);
-        }
-      }
+          await draw_playlist(playList);
+        } else {
+          playList = {
+            name: "You don't have playlists",
+            songs: []
+          };
+          await draw_playlist(playList);
+        };
+      };
     } catch (error) {
       console.error("Error deleting playlist: ", error);
     }
