@@ -94,6 +94,9 @@
                       <li id="li-sign-out">
                         <button id="logout-button" type="button" class="btn btn-light">Sign out</button>
                       </li>
+                      <li id="li-settings">
+                        <button id="settings-button" type="button" class="btn btn-light">Settings</button>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -201,6 +204,43 @@
         </div>
       </div>
 
+      <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="exampleModal" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="h_settingsModal">Настройки</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div id="settings-modal-body" class="modal-body">
+              <!-- НАСТРОЙКИ ПРИЛОЖЕНИЯ-->
+
+<!--                <div>-->
+<!--                  <input id="save-music-files" type="checkbox">-->
+<!--                  <label for="save-music-files">Save playlist music files</label>-->
+<!--                </div>-->
+                <div>
+                  <button id="save-button" class="btn btn-primary my-2" type="submit">Save user info</button>
+                </div>
+                <div>
+                  <button id="del-button" class="btn btn-primary my-2" type="submit">Delete user info</button>
+                </div>
+
+                <div>
+                  <button id="save-music-button" class="btn btn-primary my-2" type="submit">Save music files locally</button>
+                </div>
+
+                <div>
+                  <button id="del-music-button" class="btn btn-primary my-2" type="submit">Delete local music files</button>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <footer
         class="footer d-flex fixed-bottom bg-black text-white justify-content-center"
       >
@@ -218,6 +258,8 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://unpkg.com/cookielib/src/cookie.js"></script>
+    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+
     <script src="{% static 'js/main.js' %}"></script>
     <script>
         if ("serviceWorker" in navigator) {

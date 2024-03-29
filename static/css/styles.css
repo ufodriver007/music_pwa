@@ -99,7 +99,7 @@ ul {
     font-size: large;
     position: relative;
     left: 50%;
-    z-index: 2222;
+    z-index: 1000;
 }
 
 .playlist-header h3 {
