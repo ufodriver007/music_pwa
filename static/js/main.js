@@ -42,8 +42,24 @@ function switchSearchList() {
     }
 }
 
+let ud_sw = false;
+const pl_buttons = document.querySelector(".pl-buttons");
 const switcher = document.querySelector(".switcher");
 switcher.addEventListener("click", switchSearchList);
+
+function buttons_visible_switch() {
+    if (ud_sw == false) {
+        pl_buttons.style.display = "none";
+        ud_sw = true;
+    } else {
+        pl_buttons.style.display = "block";
+        ud_sw = false;
+    }
+    setHeight();
+}
+
+const ud_switcher = document.querySelector(".btn-h");
+ud_switcher.addEventListener("click", buttons_visible_switch);
 
 // объект пользователя
 let user = {
@@ -533,7 +549,8 @@ async function draw_playlist(playlist_obj) {
         new_tr.appendChild(new_td_4);
 
         let new_rem_button = document.createElement("input");
-        new_tr.appendChild(new_rem_button);
+        new_td_4.appendChild(new_rem_button);
+
         new_rem_button.type = "button";
         new_rem_button.id = `remove_btn_${song.id}`;
         new_rem_button.className = "btn btn-dark btn-sm rm-btn my-1";
@@ -685,8 +702,9 @@ async function search() {
                 new_tr.appendChild(new_td_4);
 
                 let new_add_button = document.createElement("input");
-                new_td_4.className = "text-center";
                 new_td_4.appendChild(new_add_button);
+
+                new_td_4.className = "text-center";
                 new_add_button.type = "button";
                 new_add_button.id = `add_btn_${json_data[item].url}`;
                 new_add_button.className = "btn btn-dark btn-sm rm-btn";
@@ -697,7 +715,7 @@ async function search() {
             }
         }
     } catch (error) {
-        alert("Нет подключения к сети");
+        alert("Сервер недоступен");
         console.error("Error fetching data:", error);
     } finally {
         // Возвращаем исходный текст на кнопке
@@ -777,7 +795,7 @@ async function create_playlist() {
                 }
             }
         } catch (err) {
-            alert("Нет подключения к сети");
+            alert("Сервер недоступен");
             console.log(err);
         }
     });
@@ -811,7 +829,7 @@ async function delete_playlist() {
                 };
             };
         } catch (error) {
-            alert("Нет подключения к сети");
+            alert("Сервер недоступен");
             console.error("Error deleting playlist: ", error);
         }
     } else {

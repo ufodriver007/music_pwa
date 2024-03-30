@@ -27,7 +27,7 @@ def search_song(query: str) -> dict[int: dict]:
         'mnb': '',
         'arg_query': query,
         'arg_extended': '1',
-        'arg_search_params': '{"music":{"limit":300},"playlist":{"limit":50},"album":{"limit":10},"artist":{"limit":10}}',
+        'arg_search_params': '{"music":{"limit":400},"playlist":{"limit":50},"album":{"limit":10},"artist":{"limit":10}}',
         'arg_offset': '0',
         'arg_limit': '200',
         '_': '1688932574418',
@@ -53,7 +53,3 @@ def search_song(query: str) -> dict[int: dict]:
         pass
 
     return result
-
-
-def download_song(song_id: str):
-    pass

@@ -26,6 +26,14 @@ html {
 
 }
 
+#main-song-title {
+    white-space: nowrap;
+}
+
+#header-mid {
+    overflow: hidden;
+}
+
 #song-list {
     overflow-y: auto;
 }
@@ -60,7 +68,13 @@ html {
 
 #result_table {
     width: 98%;
+    margin-left: 10px;
 }
+
+#result-table>tr {
+    margin-top: 5px !important;
+}
+
 audio {
     width: 100%;
     margin: 5px;
@@ -91,14 +105,23 @@ ul {
 
 .rm-btn {
     font-size: larger;
-    --bs-btn-padding-y: .01rem;
-    --bs-btn-padding-x: .5rem;
+    --bs-btn-padding-y: .01rem !important;
+    --bs-btn-padding-x: .5rem !important;
 }
 
-.switcher {
+.btn-sw {
     font-size: large;
     position: relative;
     left: 50%;
+    top: 10%;
+    z-index: 1000;
+}
+
+.btn-h {
+    font-size: large;
+    position: relative;
+    left: -50%;
+    top: -145%;
     z-index: 1000;
 }
 

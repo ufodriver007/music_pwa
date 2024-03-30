@@ -12,7 +12,7 @@ from rest_framework.decorators import action
 from django.contrib.auth.models import User
 from main.models import Profile, Playlist, Song
 from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer
-from main.utils import search_song, download_song
+from main.utils import search_song
 import requests
 
 
