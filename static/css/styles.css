@@ -110,18 +110,16 @@ ul {
 }
 
 .btn-sw {
-    font-size: large;
     position: relative;
     left: 50%;
-    top: 10%;
+    top: 5%;
     z-index: 1000;
 }
 
 .btn-h {
-    font-size: large;
     position: relative;
     left: -50%;
-    top: -145%;
+    top: -150%;
     z-index: 1000;
 }
 
