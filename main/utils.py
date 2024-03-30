@@ -53,3 +53,7 @@ def search_song(query: str) -> dict[int: dict]:
         pass
 
     return result
+
+
+def download_song(song_id: str):
+    pass

@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views import View
 from rest_framework import status
@@ -11,7 +12,8 @@ from rest_framework.decorators import action
 from django.contrib.auth.models import User
 from main.models import Profile, Playlist, Song
 from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer
-from main.utils import search_song
+from main.utils import search_song, download_song
+import requests
 
 
 class UserViewSet(ModelViewSet):
@@ -84,3 +86,22 @@ class RemoveConnectSongAndPlayView(APIView):
 class IndexView(View):
     def get(self, request):
         return render(request, 'index.html')
+
+
+class SongDownloadingProxy(APIView):
+    def get(self, song_id):
+        url = self.request.GET.get('url')
+
+        if url:
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                file_content = response.content
+                filename = url.split('/')[-1]  # Получаем имя файла из URL
+                response = HttpResponse(file_content, content_type='application/octet-stream')
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                return response
+            else:
+                return HttpResponse('File not found', status=404)
+        else:
+            return HttpResponse('URL parameter is missing', status=400)

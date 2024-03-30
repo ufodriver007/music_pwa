@@ -5,7 +5,7 @@ class IsOwnerOrReadOnly(BasePermission):  # т.е. работет на те view
     def has_object_permission(self, request, view, obj):
         if request.method == 'POST':                            # создавать могут все
             return True
-        print("USER IS AUTHENTICATED: " + str(request.user.is_authenticated))
+        # print("USER IS AUTHENTICATED: " + str(request.user.is_authenticated))
         return bool(
             request.method in SAFE_METHODS or
             request.user and

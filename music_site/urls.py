@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework.routers import SimpleRouter
-from main.views import UserViewSet, PlaylistViewSet, SongViewSet, SearchView, IndexView, ConnectSongAndPlaylistView, RemoveConnectSongAndPlayView
+from main.views import UserViewSet, PlaylistViewSet, SongViewSet, SearchView, IndexView, ConnectSongAndPlaylistView, RemoveConnectSongAndPlayView, SongDownloadingProxy
 from django.views.generic import TemplateView
 
 
@@ -30,6 +30,7 @@ router.register(r'api/v1/song', SongViewSet)
 urlpatterns = [
     path('api/v1/song/<int:song_id>/add/<int:playlist_id>/', ConnectSongAndPlaylistView.as_view()),
     path('api/v1/song/<int:song_id>/remove/<int:playlist_id>/', RemoveConnectSongAndPlayView.as_view()),
+    path('api/v1/proxy/', SongDownloadingProxy.as_view(), name='proxy'),
     path('api/v1/search/<str:q>', SearchView.as_view()),
     path(r'api/v1/auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.authtoken')),

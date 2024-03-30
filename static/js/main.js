@@ -177,6 +177,8 @@ async function logout() {
     setCookie("auth_token", "");
     player.setAttribute("src", "");
     player.pause();
+
+    await delete_user_info();
 }
 logout_button.addEventListener("click", logout);
 
@@ -184,11 +186,29 @@ logout_button.addEventListener("click", logout);
 const save_button = document.getElementById("save-button");
 const delete_button = document.getElementById("del-button");
 const save_music_button = document.getElementById("save-music-button");
+const save_music_checkbox = document.getElementById("ch-save-music-files");
+save_music_checkbox.addEventListener("change", save_user_info);
 const delete_music_button = document.getElementById("del-music-button");
+const audioElement = document.querySelector("audio");
+const t_size = document.getElementById("t-size");
 
 async function show_settings() {
     const settingsModal = new bootstrap.Modal("#settingsModal");
     settingsModal.show();
+
+    // получаем из indexeddb значение галочки "Сохранять локально при добавлении в плейлист"
+    const usr = await db.user.where('username').equals(user.username).first();
+    if (usr) {
+        if (usr.savelocal) {
+            save_music_checkbox.checked = true;
+        }
+    }
+
+    // получение общего размера локальной БД
+    get_db_size()
+        .then(result => {
+        t_size.textContent = "Общий размер локальной базы данных: " + result + "Мб"
+    })
 }
 settings_button.addEventListener("click", show_settings);
 
@@ -228,9 +248,11 @@ check_logged();
 var db = new Dexie("UserDatabase");
 db.version(1).stores({
     playlists: "++id,playlist",
-    user: "id,username",
+    user: "id,username,savelocal",
     files: '++id, name, data'        // Хранилище для файлов
 });
+var totalSize = 0;                   // размер всех файлов при загрузке save_all_music_files()
+var totalIndexedDBSize = 0;          // общий размер локальной БД
 
 async function save_user_info() {
     // Добавляем все плейлисты из allPlaylists в БД
@@ -241,16 +263,12 @@ async function save_user_info() {
         for (pl of allPlaylists) {
             await db.playlists.add({playlist: pl});
         }
-
         // Добавляем имя пользователя и его ID в БД
-        await db.user.add({id: user.id, username: user.username});
-
-        alert("Данные сохранены локально");
+        await db.user.add({id: user.id, username: user.username, savelocal: save_music_checkbox.checked});
     } catch (err) {
         console.log(err);
     }
 }
-save_button.addEventListener("click", save_user_info);
 
 async function delete_user_info() {
     try {
@@ -258,42 +276,95 @@ async function delete_user_info() {
         await db.playlists.clear();
         // Удаляем инфо пользователя
         await db.user.clear();
-
-        alert("Локальные данные удалены");
     } catch (err) {
         console.log(err);
     }
 }
 delete_button.addEventListener("click", delete_user_info);
 
-//async function save_music_file(fileUrl) {
-//  try {
-//    const response = await fetch(fileUrl);
-//    const blob = await response.blob();
-//    const fileReader = new FileReader();
-//
-//    fileReader.onload = async () => {
-//      // Сохранение файла в хранилище базы данных
-//      try {
-//        await db.files.add({ name: fileUrl.split('/').pop(), data: fileReader.result });
-//        console.log('Файл успешно добавлен в базу данных.');
-//      } catch (error) {
-//        console.error('Ошибка при добавлении файла в базу данных:', error);
-//      }
-//    };
-//
-//    fileReader.readAsDataURL(blob);
-//  } catch (error) {
-//    console.error('Ошибка при загрузке файла:', error);
-//  }
-//}
-
-async function save_music() {
-  // логика скачивания всех плейлистов
-  const fileUrl = 'https://moosic.my.mail.ru/file/1386167275435446d51fcc53e6c5c96a.mp3';
-  await save_music_file(fileUrl);
+function get_db_size() {
+    // логика рассчёта объёма БД
+     return new Promise((resolve, reject) => {
+         totalIndexedDBSize = 0;
+        db.files.each(item => {
+            totalIndexedDBSize += (item.content.size / 1024 / 1024); // Не вызывайте здесь toFixed(), чтобы сохранить точность
+        }).then(() => {
+            resolve(totalIndexedDBSize.toFixed(1)); // Округление до 1 знака после запятой и передача результата в resolve
+        }).catch(error => {
+            reject(error);
+        });
+    });
 }
-save_music_button.addEventListener("click", save_music);
+async function play_song_from_bd(fileName) {
+    try {
+        const song = await db.files.where('name').equals(fileName).first(); // Ждем выполнения запроса и получаем объект песни
+
+        if (song) {
+            const blobUrl = URL.createObjectURL(song.content); // Создаем URL для Blob-объекта
+
+            audioElement.src = blobUrl;
+            audioElement.play();
+        } else {
+            console.error('Song not found in IndexedDB');
+        }
+    } catch (error) {
+        console.error('Error retrieving song from IndexedDB:', error);
+    }
+}
+
+async function save_music_file(url) {
+    let file_name = url.split("/").pop();
+
+    try {
+        const response = await fetch(GENERAL_ENDPOINT + '/proxy/?url=' + url);
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+
+        const blob = await response.blob();
+        const size = blob.size;
+        totalSize += size;
+
+        await db.files.add({ name: file_name, content: blob });
+
+        console.log("File " + file_name + " saved to IndexedDB");
+    } catch (error) {
+        console.error('Error downloading file or saving to IndexedDB:', error);
+    }
+}
+
+async function save_all_music_files() {
+    await save_user_info();
+    // получаем url'ы всех песен во всех плейлистах пользователя
+    // в цикле скачиваем их все в БД
+    let urls = [];
+    for (let pl of allPlaylists) {
+        for (let song of pl.songs) {
+            urls.push(song.url);
+        }
+    }
+
+    alert("Всего будет скачано " + urls.length + " файлов");
+    totalSize = 0;
+    for (let url of urls) {
+        await save_music_file(url);
+    }
+    alert("Скачивание завершено. Размер всех скачанных файлов " + (Math.round(totalSize / 1024 / 1024)) + "Мб");
+}
+save_music_button.addEventListener("click", save_all_music_files);
+
+async function delete_music_files() {
+    if (confirm("Внимание! Вы удаляете все локальные файлы с музыкой!")) {
+        // Удаляем файлы музыки из БД
+        await db.files.clear();
+        t_size.textContent = "Общий размер локальной базы данных: 0Мб"
+        alert("Все локальные файлы с музыкой удалены");
+    } else {
+        console.log("Удаление локальных файлов отменено пользователем");
+    }
+}
+delete_music_button.addEventListener("click", delete_music_files);
 
 async function load_playlists() {
     let response = await fetch(GENERAL_ENDPOINT + "/playlist/?user=" + user.id, {
@@ -340,9 +411,20 @@ async function play_song() {
         } else {
             // если песня из плейлиста
             song_id = this.id.slice(8);
-            for (song of playList.songs) {
+            for (let song of playList.songs) {
                 if (song.id == song_id) {
-                    player.setAttribute("src", song.url);
+                    let file_name = song.url.split("/").pop();
+                    const found_song = await db.files.where('name').equals(file_name).first();
+
+                    if (found_song !== undefined) {
+                        // Песня была найдена в БД
+                        console.log('Запись найдена в локальной БД: ', found_song.name);
+                        await play_song_from_bd(file_name);
+
+                    } else {
+                        player.setAttribute("src", song.url);
+                    }
+
                     song_title.textContent = song.name;
                     // Сделать td активным
                     var elements = document.querySelectorAll('.orange'); // выбираем все элементы с классом 'orange'
@@ -371,7 +453,17 @@ async function play_song() {
         };
 
         song_title.textContent = currentSong.name;
-        player.setAttribute("src", currentSong.url);
+
+        let file_name = currentSong.url.split("/").pop();
+        const found_song = await db.files.where('name').equals(file_name).first();
+
+        if (found_song !== undefined) {
+            // Песня была найдена в БД
+            console.log('Запись найдена в локальной БД: ', found_song.name);
+            await play_song_from_bd(file_name);
+        } else {
+            player.setAttribute("src", currentSong.url);
+        }
     }
 }
 
@@ -537,6 +629,15 @@ async function add_song_to_playlist() {
         // перерисовка плейлиста визуально
         await reload_playlist(playList);
         await draw_playlist(playList);
+
+        // если установлена галочка 'Сохранять локально при добавлении в плейлист',
+        //   то скачиваем файл в indexeddb
+        const usr = await db.user.where('username').equals(user.username).first();
+        if (usr) {
+            if (usr.savelocal) {
+                await save_music_file(this.id.slice(8));
+            }
+        }
     } else {
         console.log("Song dont added to DB!");
     }
@@ -596,6 +697,7 @@ async function search() {
             }
         }
     } catch (error) {
+        alert("Нет подключения к сети");
         console.error("Error fetching data:", error);
     } finally {
         // Возвращаем исходный текст на кнопке
@@ -675,6 +777,7 @@ async function create_playlist() {
                 }
             }
         } catch (err) {
+            alert("Нет подключения к сети");
             console.log(err);
         }
     });
@@ -708,6 +811,7 @@ async function delete_playlist() {
                 };
             };
         } catch (error) {
+            alert("Нет подключения к сети");
             console.error("Error deleting playlist: ", error);
         }
     } else {
