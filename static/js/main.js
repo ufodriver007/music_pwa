@@ -504,13 +504,26 @@ async function remove_song_from_playlist() {
         console.log("Error! Cant remove song from playlist");
     }
 
-    // удаление песни из локальной переменной с плейлистом
+    technical_name = "";
+    // удаление песни из локальной переменной с плейлистом и получение технического имени файла
     for (let i = 0; i < playList.songs.length; i++) {
         if (playList.songs[i].id == song_id) {
+            technical_name = playList.songs[i].url.split("/").pop();  // 35a607e441b4ef45ea0fba4482feddc2.mp3
+
             playList.songs.splice(i, 1);
             break;
         }
     }
+
+    // удаление из локальной БД
+    try {
+        await db.files
+            .where("name").equals(technical_name)
+            .delete();
+    } catch (err) {
+        console.log("Can't delete local file " + err);
+    }
+
 
     // перерисовка плейлиста визуально
     await draw_playlist(playList);
