@@ -274,18 +274,20 @@ async function check_logged() {
                 login_screen.style.cssText = "display:none !important";
                 h_username.innerHTML = user.username;
 
-                await load_playlists();
-                if (allPlaylists.length > 0) {
-                    await draw_playlist(allPlaylists[0]);
-                };
+                db.playlists.each(pl => {
+                    allPlaylists.push(pl.playlist);
+                })
+                .then(async () => {
+                    if (allPlaylists.length > 0) {
+                        await draw_playlist(allPlaylists[0]);
+                    }
+                })
             } else {
                 console.log("Пользователь не был залогинен");
             }
         } catch (err) {
             console.log(err);
         }
-
-        console.log(err);
         return;
     }
 }
@@ -335,6 +337,7 @@ async function rename_playlist() {
                         break;
                     }
                 }
+                await save_user_info();
             }
         } catch (err) {
             alert("Сервер недоступен");
