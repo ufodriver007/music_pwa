@@ -162,8 +162,12 @@ async function login() {
             login_screen.style.cssText = "display:none !important";
             h_username.innerHTML = user.username;
 
-            setCookie("auth_token", userToken);
-            check_logged(); // получаем user.id
+            // устанавоиваем куку на 1 год
+            setCookie("auth_token", userToken, {expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))});
+            // получаем user.id
+            await check_logged();
+            // сохраняем id, username, плейлисты в локаоьную БД
+            await save_user_info();
         } else {
             userToken = null;
             alert("Wrong data!");
@@ -231,15 +235,16 @@ settings_button.addEventListener("click", show_settings);
 // проверка, что в куках есть токен авторизации, логин и получение user.id
 async function check_logged() {
     try {
-        let response = await fetch(GENERAL_ENDPOINT + "/auth/users/me/", {
+        let response = await fetch(GENERAL_ENDPOINT + "/auth/users/me/?_="  + Math.random(), {
             method: "GET",
             headers: {
                 Accept: "application/json",
                 Authorization: "Token " + getCookie("auth_token"),
             },
         });
+        let json_data = await response.json();
         if (response.ok) {
-            let json_data = await response.json();
+            // let json_data = await response.json();
             user.id = json_data.id;
             user.username = json_data.username;
 
@@ -251,9 +256,35 @@ async function check_logged() {
                 await draw_playlist(allPlaylists[0]);
             };
         } else {
-            //alert("Ошибка HTTP: " + response.status);
+            console.log("Не залогинен");
         }
     } catch (err) {
+        // если нет соединения, проверим что есть userToken в куках и id,
+        //   username и плейлисты в локальной БД
+        console.log("Сервер недоступен " + err);
+        try{
+            userToken = getCookie("auth_token");
+            local_user = await db.user.orderBy("id").first();
+
+            if (userToken && local_user) {
+                console.log("Данные будут взяты из куки и локальной БД");
+                user.id = local_user.id;
+                user.username = local_user.username;
+
+                login_screen.style.cssText = "display:none !important";
+                h_username.innerHTML = user.username;
+
+                await load_playlists();
+                if (allPlaylists.length > 0) {
+                    await draw_playlist(allPlaylists[0]);
+                };
+            } else {
+                console.log("Пользователь не был залогинен");
+            }
+        } catch (err) {
+            console.log(err);
+        }
+
         console.log(err);
         return;
     }
@@ -300,8 +331,8 @@ delete_button.addEventListener("click", delete_user_info);
 
 function get_db_size() {
     // логика рассчёта объёма БД
-     return new Promise((resolve, reject) => {
-         totalIndexedDBSize = 0;
+    return new Promise((resolve, reject) => {
+        totalIndexedDBSize = 0;
         db.files.each(item => {
             totalIndexedDBSize += (item.content.size / 1024 / 1024); // Не вызывайте здесь toFixed(), чтобы сохранить точность
         }).then(() => {
@@ -486,22 +517,28 @@ async function play_song() {
 async function remove_song_from_playlist() {
     song_id = this.id.slice(11);
 
-    // разрыв связи в БД между плейлистом и песней
-    let rem_playlist_query = await fetch(
-        GENERAL_ENDPOINT + `/song/${song_id}/remove/${playList.id}/`,
-        {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json;charset=utf-8",
-            },
-            body: "",
+    try {
+        // разрыв связи в БД между плейлистом и песней
+        let rem_playlist_query = await fetch(
+            GENERAL_ENDPOINT + `/song/${song_id}/remove/${playList.id}/`,
+            {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json;charset=utf-8",
+                },
+                body: "",
+            }
+        );
+        if (rem_playlist_query.ok) {
+            console.log("Song removed from playlist");
+        } else {
+            console.log("Error! Cant remove song from playlist");
+            return;
         }
-    );
-    if (rem_playlist_query.ok) {
-        console.log("Song removed from playlist");
-    } else {
-        console.log("Error! Cant remove song from playlist");
+    } catch (err) {
+        alert("Сервер недоступен");
+        return;
     }
 
     technical_name = "";
@@ -627,49 +664,54 @@ async function add_song_to_playlist() {
         }
     }
 
-    // добавление песни в БД
-    let resp = await fetch(GENERAL_ENDPOINT + "/song/", {
-        method: "POST",
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json;charset=utf-8",
-        },
-        body: JSON.stringify(song),
-    });
-    if (resp.ok) {
-        let answer = await resp.json(); // Получить JSON ответ от сервера
-        console.log(answer.name + " added to DataBase!");
+    try {
+        // добавление песни в БД
+        let resp = await fetch(GENERAL_ENDPOINT + "/song/", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json;charset=utf-8",
+            },
+            body: JSON.stringify(song),
+        });
+        if (resp.ok) {
+            let answer = await resp.json(); // Получить JSON ответ от сервера
+            console.log(answer.name + " added to DataBase!");
 
-        // создание связи между песней и плейлистом
-        let add_playlist_query = await fetch(
-            GENERAL_ENDPOINT + `/song/${answer.id}/add/${playList.id}/`,
-            {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json;charset=utf-8",
-                },
-                body: "",
+            // создание связи между песней и плейлистом
+            let add_playlist_query = await fetch(
+                GENERAL_ENDPOINT + `/song/${answer.id}/add/${playList.id}/`,
+                {
+                    method: "POST",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json;charset=utf-8",
+                    },
+                    body: "",
+                }
+            );
+            if (add_playlist_query.ok) {
+                console.log(answer.name + " added to playlist!");
             }
-        );
-        if (add_playlist_query.ok) {
-            console.log(answer.name + " added to playlist!");
-        }
 
-        // перерисовка плейлиста визуально
-        await reload_playlist(playList);
-        await draw_playlist(playList);
+            // перерисовка плейлиста визуально
+            await reload_playlist(playList);
+            await draw_playlist(playList);
 
-        // если установлена галочка 'Сохранять локально при добавлении в плейлист',
-        //   то скачиваем файл в indexeddb
-        const usr = await db.user.where('username').equals(user.username).first();
-        if (usr) {
-            if (usr.savelocal) {
-                await save_music_file(this.id.slice(8));
+            // если установлена галочка 'Сохранять локально при добавлении в плейлист',
+            //   то скачиваем файл в indexeddb
+            const usr = await db.user.where('username').equals(user.username).first();
+            if (usr) {
+                if (usr.savelocal) {
+                    await save_music_file(this.id.slice(8));
+                }
             }
+        } else {
+            console.log("Song dont added to DB!");
         }
-    } else {
-        console.log("Song dont added to DB!");
+    } catch (err) {
+        alert("Сервер недоступен");
+        return;
     }
 }
 
