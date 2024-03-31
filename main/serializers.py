@@ -31,3 +31,25 @@ class PlaylistSerializer(ModelSerializer):
                 Playlist.songs.add(song)
 
         return playlist
+
+    def update(self, instance, validated_data):
+        songs_data = validated_data.pop('songs', None)       # Извлекаем данные о песнях
+        instance = super().update(instance, validated_data)  # Обновляем родительский экземпляр плейлиста
+
+        if songs_data is not None:
+            songs = list(instance.songs.all())
+
+            for song_data in songs_data:
+                if songs:
+                    song = songs.pop(0)
+                    song.name = song_data.get('name', song.name)
+                    song.author = song_data.get('author', song.author)
+                    song.album = song_data.get('album', song.album)
+                    song.bitrate = song_data.get('bitrate', song.bitrate)
+                    song.duration_text = song_data.get('duration_text', song.duration_text)
+                    song.duration = song_data.get('duration', song.duration)
+                    song.album_cover_url = song_data.get('album_cover_url', song.album_cover_url)
+                    song.url = song_data.get('url', song.url)
+                    song.save()
+
+        return instance

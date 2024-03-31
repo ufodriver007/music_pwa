@@ -235,6 +235,7 @@ settings_button.addEventListener("click", show_settings);
 // проверка, что в куках есть токен авторизации, логин и получение user.id
 async function check_logged() {
     try {
+        // добавление к запросу рандомных параметров, чтобы запрос не кешировался браузером
         let response = await fetch(GENERAL_ENDPOINT + "/auth/users/me/?_="  + Math.random(), {
             method: "GET",
             headers: {
@@ -244,7 +245,6 @@ async function check_logged() {
         });
         let json_data = await response.json();
         if (response.ok) {
-            // let json_data = await response.json();
             user.id = json_data.id;
             user.username = json_data.username;
 
@@ -301,6 +301,48 @@ db.version(1).stores({
 var totalSize = 0;                   // размер всех файлов при загрузке save_all_music_files()
 var totalIndexedDBSize = 0;          // общий размер локальной БД
 
+async function rename_playlist() {
+    // alert(playList.name);
+    const renamePlaylistModal = new bootstrap.Modal("#rn-pl-modal");
+    renamePlaylistModal.show();
+
+    const rn_input = document.getElementById("rn-pl-name");
+    const rn_pl_button = document.getElementById("rn-pl-button");
+
+    rn_input.value = "";
+    rn_pl_button.addEventListener("click", async () => {
+        try {
+            playList.name = rn_input.value;
+            let resp = await fetch(GENERAL_ENDPOINT + `/playlist/` + playList.id + "/", {
+                method: "PUT",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json;charset=utf-8",
+                    Authorization: "Token " + getCookie("auth_token"),
+                },
+                body: JSON.stringify(playList),
+            });
+            if (resp.ok) {
+                let answer = await resp.json();      // Получить JSON ответ от сервера
+                console.log("Playlist renamed " + answer.name);
+                renamePlaylistModal.hide();
+                await load_playlists();
+                for (i of allPlaylists) {
+                    console.log(i.name);
+                    if (answer.name == i.name) {
+                        playList = i;
+                        await draw_playlist(playList);
+                        break;
+                    }
+                }
+            }
+        } catch (err) {
+            alert("Сервер недоступен");
+            console.log(err);
+        }
+    });
+}
+playlist_title.addEventListener("click", rename_playlist);
 async function save_user_info() {
     // Добавляем все плейлисты из allPlaylists в БД
     await load_playlists();
