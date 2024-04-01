@@ -23,12 +23,12 @@ class PlaylistSerializer(ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        songs = validated_data.pop('songs', None)
+        # songs = validated_data.pop('songs', None)
         playlist = Playlist.objects.create(**validated_data)
 
-        if songs:
-            for song in songs:
-                Playlist.songs.add(song)
+        # if songs:
+        #     for song in songs:
+        #         playlist.songs.add(song)
 
         return playlist
 

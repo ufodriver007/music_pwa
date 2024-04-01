@@ -141,7 +141,8 @@ ul {
     color: green;
 }
 
-#cr-pl-name {
+#cr-pl-name,
+#rn-pl-name {
     width: 100%;
 }
 

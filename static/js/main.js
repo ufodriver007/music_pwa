@@ -422,6 +422,7 @@ async function save_music_file(url) {
 
         console.log("File " + file_name + " saved to IndexedDB");
     } catch (error) {
+        alert("Ошибка при сохранении файла");
         console.error('Error downloading file or saving to IndexedDB:', error);
     }
 }
@@ -473,7 +474,6 @@ async function load_playlists() {
             allPlaylists = json_data;
         } else {
             allPlaylists = [];
-            await create_playlist();
         };
     };
 };
@@ -742,6 +742,7 @@ async function add_song_to_playlist() {
             // перерисовка плейлиста визуально
             await reload_playlist(playList);
             await draw_playlist(playList);
+            setHeight();
 
             // если установлена галочка 'Сохранять локально при добавлении в плейлист',
             //   то скачиваем файл в indexeddb
@@ -846,7 +847,7 @@ async function choose_playlist() {
 
         new_div.className = "";
         new_div.id = item.id;
-        new_div.textContent = item.name + "(songs: " + item.songs.length + ")";
+        new_div.textContent = item.name + "(композиций: " + item.songs.length + ")";
         new_div.addEventListener("click", async () => {
             for (i of allPlaylists) {
                 if (new_div.id == i.id) {
@@ -869,7 +870,9 @@ async function create_playlist() {
     const cr_pl_button = document.getElementById("cr-pl-button");
 
     cr_input.value = "";
-    cr_pl_button.addEventListener("click", async () => {
+
+    async function handlePlaylistCreation() {
+        cr_pl_button.removeEventListener("click", handlePlaylistCreation);
         try {
             let resp = await fetch(GENERAL_ENDPOINT + `/playlist/`, {
                 method: "POST",
@@ -886,7 +889,6 @@ async function create_playlist() {
                 createPlaylistModal.hide();
                 await load_playlists();
                 for (i of allPlaylists) {
-                    console.log(i.name);
                     if (answer.name == i.name) {
                         playList = i;
                         await draw_playlist(playList);
@@ -898,7 +900,8 @@ async function create_playlist() {
             alert("Сервер недоступен");
             console.log(err);
         }
-    });
+    }
+    cr_pl_button.addEventListener("click", handlePlaylistCreation);
 }
 
 async function delete_playlist() {
