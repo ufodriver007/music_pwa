@@ -31,7 +31,7 @@ SECRET_KEY = DJANGO_SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', '89.23.110.30']
+ALLOWED_HOSTS = ['127.0.0.1', '89.23.110.30', 'www.mint-coast.ru']
 
 
 # Application definition
