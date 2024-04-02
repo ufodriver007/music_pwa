@@ -1,7 +1,7 @@
 //const DOMAIN = "http://127.0.0.1:8000";
 //const GENERAL_ENDPOINT = "http://127.0.0.1:8000/api/v1";
-const DOMAIN = "http://89.23.110.30";
-const GENERAL_ENDPOINT = "http://89.23.110.30/api/v1";
+const DOMAIN = "https://89.23.110.30";
+const GENERAL_ENDPOINT = "https://89.23.110.30/api/v1";
 
 function setHeight() {
     const songList = document.getElementById("song-list");
