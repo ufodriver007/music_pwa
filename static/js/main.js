@@ -350,6 +350,7 @@ async function rename_playlist() {
     });
 }
 playlist_title.addEventListener("click", rename_playlist);
+
 async function save_user_info() {
     // Добавляем все плейлисты из allPlaylists в БД
     await load_playlists();
@@ -747,6 +748,8 @@ async function add_song_to_playlist() {
             await reload_playlist(playList);
             await draw_playlist(playList);
             setHeight();
+
+            await save_user_info();
 
             // если установлена галочка 'Сохранять локально при добавлении в плейлист',
             //   то скачиваем файл в indexeddb
