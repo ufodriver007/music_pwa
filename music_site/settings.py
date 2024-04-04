@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+from main.utils import get_new_vk_token
 
 
 load_dotenv()
@@ -166,3 +167,5 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "http://localhost:3000",
 #     "http://localhost",
 # ]
+
+# get_new_vk_token()
