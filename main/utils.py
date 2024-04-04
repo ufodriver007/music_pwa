@@ -26,8 +26,36 @@ def search_song(query: str) -> dict[int: dict]:
     Search string and return list of tuples.
      Return {0: {name, author, album, ...}}
      """
+    def vk_search(query: str, count=100) -> dict[int: dict]:
+        nonlocal counter
+        service = Service(os.getenv('VK_USER_AGENT'), os.getenv('VK_TOKEN'))
+        if service.check_token(os.getenv('VK_TOKEN')):
+            songs = service.search_songs_by_text(query, count)
 
-    def mail_ru_search(query):
+            result = {}
+
+            try:
+                for song in songs:
+                    result[counter] = {'name': song.title,
+                                       'author': song.artist,
+                                       'album': None,
+                                       'bitrate': None,
+                                       'duration_text': convert_song_duration(song.duration),
+                                       'duration': song.duration,
+                                       'album_cover_url': None,
+                                       'url': song.url
+                                       }
+                    counter += 1
+            except Exception:
+                pass
+
+            return result
+        else:
+            print('VK TOKEN EXPIRED!')
+            return {}
+
+    def mail_ru_search(query, count=400):
+        nonlocal counter
         headers = {
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0',
             'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -49,7 +77,8 @@ def search_song(query: str) -> dict[int: dict]:
             'mnb': '',
             'arg_query': query,
             'arg_extended': '1',
-            'arg_search_params': '{"music":{"limit":400},"playlist":{"limit":50},"album":{"limit":10},"artist":{"limit":10}}',
+            'arg_search_params': f'{{"music":{{"limit":{count}}},"playlist":{{"limit":50}},"album":{{"limit":10}},"artist":{{"limit":10}}}}',
+            # '{"music":{"limit":400},"playlist":{"limit":50},"album":{"limit":10},"artist":{"limit":10}}'
             'arg_offset': '0',
             'arg_limit': '200',
             '_': '1688932574418',
@@ -58,7 +87,6 @@ def search_song(query: str) -> dict[int: dict]:
         response = requests.get('https://my.mail.ru/cgi-bin/my/ajax', params=params, headers=headers)
 
         result = {}
-        counter = 101
         try:
             for md in response.json()[3]['MusicData']:
                 result[counter] = {'name': md['Name_Text_HTML'],
@@ -76,29 +104,5 @@ def search_song(query: str) -> dict[int: dict]:
 
         return result
 
-    def vk_search(query: str) -> dict[int: dict]:
-        service = Service(os.getenv('VK_USER_AGENT'), os.getenv('VK_TOKEN'))
-        if service.check_token(os.getenv('VK_TOKEN')):
-            songs = service.search_songs_by_text(query, 100)
-
-            result = {}
-            counter = 0
-
-            for song in songs:
-                result[counter] = {'name': song.title,
-                                   'author': song.artist,
-                                   'album': None,
-                                   'bitrate': None,
-                                   'duration_text': convert_song_duration(song.duration),
-                                   'duration': song.duration,
-                                   'album_cover_url': None,
-                                   'url': song.url
-                                   }
-                counter += 1
-
-            return result
-        else:
-            print('VK TOKEN EXPIRED!')
-            return {}
-
-    return {**(vk_search(query)), **mail_ru_search(query)}
+    counter = 0
+    return {**(vk_search(query, count=100)), **mail_ru_search(query, count=400)}
