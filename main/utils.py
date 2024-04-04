@@ -78,23 +78,27 @@ def search_song(query: str) -> dict[int: dict]:
 
     def vk_search(query: str) -> dict[int: dict]:
         service = Service(os.getenv('VK_USER_AGENT'), os.getenv('VK_TOKEN'))
-        songs = service.search_songs_by_text(query, 100)
+        if service.check_token(os.getenv('VK_TOKEN')):
+            songs = service.search_songs_by_text(query, 100)
 
-        result = {}
-        counter = 0
+            result = {}
+            counter = 0
 
-        for song in songs:
-            result[counter] = {'name': song.title,
-                               'author': song.artist,
-                               'album': None,
-                               'bitrate': None,
-                               'duration_text': convert_song_duration(song.duration),
-                               'duration': song.duration,
-                               'album_cover_url': None,
-                               'url': song.url
-                               }
-            counter += 1
+            for song in songs:
+                result[counter] = {'name': song.title,
+                                   'author': song.artist,
+                                   'album': None,
+                                   'bitrate': None,
+                                   'duration_text': convert_song_duration(song.duration),
+                                   'duration': song.duration,
+                                   'album_cover_url': None,
+                                   'url': song.url
+                                   }
+                counter += 1
 
-        return result
+            return result
+        else:
+            print('VK TOKEN EXPIRED!')
+            return {}
 
     return {**(vk_search(query)), **mail_ru_search(query)}
