@@ -1,7 +1,7 @@
-const DOMAIN = "http://127.0.0.1:8000";
-const GENERAL_ENDPOINT = "http://127.0.0.1:8000/api/v1";
-//const DOMAIN = "https://www.mint-coast.ru";
-//const GENERAL_ENDPOINT = "https://www.mint-coast.ru/api/v1";
+//const DOMAIN = "http://127.0.0.1:8000";
+//const GENERAL_ENDPOINT = "http://127.0.0.1:8000/api/v1";
+const DOMAIN = "https://www.mint-coast.ru";
+const GENERAL_ENDPOINT = "https://www.mint-coast.ru/api/v1";
 
 
 function setHeight() {
