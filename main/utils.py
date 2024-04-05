@@ -115,4 +115,4 @@ def search_song(query: str) -> dict[int: dict]:
 
     # счётчик количества песен в результате
     counter = 0
-    return {**(vk_search(query, count=100)), **mail_ru_search(query, count=400)}
+    return {**(vk_search(query, count=100)), **mail_ru_search(query, count=200)}
