@@ -1,9 +1,8 @@
-//const DOMAIN = "http://127.0.0.1:8000";
-//const GENERAL_ENDPOINT = "http://127.0.0.1:8000/api/v1";
-//const DOMAIN = "https://89.23.110.30";
-//const GENERAL_ENDPOINT = "https://89.23.110.30/api/v1";
-const DOMAIN = "https://www.mint-coast.ru";
-const GENERAL_ENDPOINT = "https://www.mint-coast.ru/api/v1";
+const DOMAIN = "http://127.0.0.1:8000";
+const GENERAL_ENDPOINT = "http://127.0.0.1:8000/api/v1";
+//const DOMAIN = "https://www.mint-coast.ru";
+//const GENERAL_ENDPOINT = "https://www.mint-coast.ru/api/v1";
+
 
 function setHeight() {
     const songList = document.getElementById("song-list");
@@ -166,11 +165,11 @@ async function login() {
             login_screen.style.cssText = "display:none !important";
             h_username.innerHTML = user.username;
 
-            // устанавоиваем куку на 1 год
+            // устанавливаем куку на 1 год
             setCookie("auth_token", userToken, {expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))});
             // получаем user.id
             await check_logged();
-            // сохраняем id, username, плейлисты в локаоьную БД
+            // сохраняем id, username, плейлисты в локальную БД
             await save_user_info();
         } else {
             userToken = null;
@@ -206,10 +205,9 @@ async function logout() {
 }
 logout_button.addEventListener("click", logout);
 
-
 const save_button = document.getElementById("save-button");
-const delete_button = document.getElementById("del-button");
 const save_music_button = document.getElementById("save-music-button");
+const save_pl_music_button = document.getElementById("save-pl-music-button");
 const save_music_checkbox = document.getElementById("ch-save-music-files");
 save_music_checkbox.addEventListener("change", save_user_info);
 const delete_music_button = document.getElementById("del-music-button");
@@ -351,6 +349,17 @@ async function rename_playlist() {
 }
 playlist_title.addEventListener("click", rename_playlist);
 
+async function delete_user_info() {
+    try {
+        // Удаляем все плейлисты
+        await db.playlists.clear();
+        // Удаляем инфо пользователя
+        await db.user.clear();
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 async function save_user_info() {
     // Добавляем все плейлисты из allPlaylists в БД
     await load_playlists();
@@ -367,18 +376,6 @@ async function save_user_info() {
     }
 }
 
-async function delete_user_info() {
-    try {
-        // Удаляем все плейлисты
-        await db.playlists.clear();
-        // Удаляем инфо пользователя
-        await db.user.clear();
-    } catch (err) {
-        console.log(err);
-    }
-}
-delete_button.addEventListener("click", delete_user_info);
-
 function get_db_size() {
     // логика рассчёта объёма БД
     return new Promise((resolve, reject) => {
@@ -392,6 +389,7 @@ function get_db_size() {
         });
     });
 }
+
 async function play_song_from_bd(fileName) {
     try {
         const song = await db.files.where('name').equals(fileName).first(); // Ждем выполнения запроса и получаем объект песни
@@ -434,23 +432,33 @@ async function save_music_file(url) {
 
 async function save_all_music_files() {
     await save_user_info();
-    // получаем url'ы всех песен во всех плейлистах пользователя
-    // в цикле скачиваем их все в БД
-    let urls = [];
-    for (let pl of allPlaylists) {
-        for (let song of pl.songs) {
-            urls.push(song.url);
-        }
-    }
+
+    let urls = allPlaylists.flatMap(pl => pl.songs.map(song => song.url));
 
     alert("Всего будет скачано " + urls.length + " файлов");
     totalSize = 0;
-    for (let url of urls) {
-        await save_music_file(url);
-    }
+
+    const downloadPromises = urls.map(url => save_music_file(url));
+    await Promise.all(downloadPromises);
+
     alert("Скачивание завершено. Размер всех скачанных файлов " + (Math.round(totalSize / 1024 / 1024)) + "Мб");
 }
 save_music_button.addEventListener("click", save_all_music_files);
+
+async function save_current_playlist_music_files() {
+    await save_user_info();
+
+    let urls = playList.songs.flatMap(song => song.url);
+
+    alert("Всего будет скачано " + urls.length + " файлов");
+    totalSize = 0;
+
+    const downloadPromises = urls.map(url => save_music_file(url));
+    await Promise.all(downloadPromises);
+
+    alert("Скачивание завершено. Размер всех скачанных файлов " + (Math.round(totalSize / 1024 / 1024)) + "Мб");
+}
+save_pl_music_button.addEventListener("click", save_current_playlist_music_files);
 
 async function delete_music_files() {
     if (confirm("Внимание! Вы удаляете все локальные файлы с музыкой!")) {

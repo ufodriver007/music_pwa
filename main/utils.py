@@ -5,6 +5,10 @@ from vkpymusic import TokenReceiver, Service
 
 
 def get_new_vk_token():
+    """
+    Use vk_login and vk_password. Write token to self config(venv/lib/python3.11/site-packages/vkpymusic/config_vk.ini)
+    :return:
+    """
     login = 'vk_login'
     password = 'vk_password'
 
@@ -16,6 +20,11 @@ def get_new_vk_token():
 
 
 def convert_song_duration(seconds: int) -> str:
+    """
+    Convert song duration(in seconds) to duration('xx:xx')
+    :param seconds:
+    :return:
+    """
     mins = seconds // 60
     secs = seconds % 60
     return f'{mins:0>2}:{secs:0>2}'
@@ -25,7 +34,7 @@ def search_song(query: str) -> dict[int: dict]:
     """
     Search string and return list of tuples.
      Return {0: {name, author, album, ...}}
-     """
+    """
     def vk_search(query: str, count=100) -> dict[int: dict]:
         nonlocal counter
         service = Service(os.getenv('VK_USER_AGENT'), os.getenv('VK_TOKEN'))
@@ -104,5 +113,6 @@ def search_song(query: str) -> dict[int: dict]:
 
         return result
 
+    # счётчик количества песен в результате
     counter = 0
     return {**(vk_search(query, count=100)), **mail_ru_search(query, count=400)}
