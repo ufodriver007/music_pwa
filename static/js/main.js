@@ -782,6 +782,9 @@ async function search() {
 
     // Изменяем текст на кнопке
     search_button.textContent = "Загрузка...";
+    result_table.style.cursor = "wait";
+    search_input.style.cursor = "wait";
+    search_button.style.cursor = "wait";
 
     try {
         let response = await fetch(
@@ -836,6 +839,9 @@ async function search() {
     } finally {
         // Возвращаем исходный текст на кнопке
         search_button.textContent = "Найти";
+        result_table.style.cursor = "default";
+        search_input.style.cursor = "text";
+        search_button.style.cursor = "default";
     }
 }
 search_button.addEventListener("click", search);

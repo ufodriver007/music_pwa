@@ -89,9 +89,13 @@ html {
     border: solid black;
 }
 
+.pl-table {
+    cursor: default;
+}
 #result_table {
     width: 98%;
     margin-left: 10px;
+    cursor: default;
 }
 
 #result-table>tr {
