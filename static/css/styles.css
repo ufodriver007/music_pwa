@@ -26,11 +26,34 @@ html {
 
 }
 
-#main-song-title {
-    white-space: nowrap;
+#song-title-wrapper {
+    display: flex;
+    overflow-x: hidden;
+    justify-content: center;
 }
 
-#header-mid {
+#main-song-title {
+    white-space: nowrap;
+    display: inline-block;
+    animation: scroll-text 10s linear infinite;
+}
+
+@keyframes scroll-text {
+     0% {
+         transform: translateX(200px);
+     }
+    33% {
+        transform: translateX(3px);
+    }
+    66% {
+        transform: translateX(3px);
+    }
+    100% {
+        transform: translateX(-200px);
+     }
+}
+
+}#header-mid {
     overflow: hidden;
 }
 
