@@ -26,6 +26,10 @@ html {
 
 }
 
+#username {
+    cursor: default;
+}
+
 #song-title-wrapper {
     display: flex;
     overflow-x: hidden;
@@ -170,7 +174,8 @@ ul {
 }
 
 #cr-pl-name,
-#rn-pl-name {
+#rn-pl-name,
+#rn-song-name {
     width: 100%;
 }
 

@@ -1,4 +1,5 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+from main.models import Playlist, Song
 
 
 class IsOwnerOrReadOnly(BasePermission):  # т.е. работет на те view, которые привязаны к какому-то объекту
@@ -46,6 +47,8 @@ class SongPermission(BasePermission):
             return True
         if request.method == 'GET':                               # читать могут все
             return True
+        if request.method == 'PUT':                               # изменять могут все
+            return True
         if request.method == 'DELETE' and request.user.is_staff:  # удалять может только админ
             return True
 
@@ -58,7 +61,13 @@ class SongPermission(BasePermission):
         if request.method == 'GET':  # читать могут все
             return True
         if request.method == 'PUT':  # изменять может только владелец или админ
-            return bool(request.user and request.user.is_authenticated and obj.owner == request.user or request.user.is_staff)
+            if request.user and request.user.is_authenticated:
+                try:
+                    Playlist.objects.filter(user=request.user, songs=obj)
+                    return True
+                except Exception:
+                    return False
+            return bool(request.user.is_staff)
         if request.method == 'DELETE' and request.user.is_staff:  # удалять может только админ
             return True
 

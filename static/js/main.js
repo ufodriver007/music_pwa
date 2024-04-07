@@ -1,7 +1,7 @@
-//const DOMAIN = "http://127.0.0.1:8000";
-//const GENERAL_ENDPOINT = "http://127.0.0.1:8000/api/v1";
-const DOMAIN = "https://www.mint-coast.ru";
-const GENERAL_ENDPOINT = "https://www.mint-coast.ru/api/v1";
+const DOMAIN = "http://127.0.0.1:8000";
+const GENERAL_ENDPOINT = "http://127.0.0.1:8000/api/v1";
+//const DOMAIN = "https://www.mint-coast.ru";
+//const GENERAL_ENDPOINT = "https://www.mint-coast.ru/api/v1";
 
 
 function setHeight() {
@@ -313,7 +313,7 @@ async function rename_playlist() {
     const rn_input = document.getElementById("rn-pl-name");
     const rn_pl_button = document.getElementById("rn-pl-button");
 
-    rn_input.value = "";
+    rn_input.value = playList.name;
     rn_pl_button.addEventListener("click", async () => {
         try {
             playList.name = rn_input.value;
@@ -716,6 +716,53 @@ player.onpause = async function () {
 player.onplay = async function () {
     song_title.style.webkitAnimationPlayState = 'running';
 };
+
+async function rename_song() {
+    const renameSongModal = new bootstrap.Modal("#rn-song-modal");
+    renameSongModal.show();
+
+    const rn_song_input = document.getElementById("rn-song-name");
+    const rn_song_button = document.getElementById("rn-song-button");
+    rn_song_button.addEventListener("click", handleSongRename);
+
+    rn_song_input.value = currentSong.name;
+
+    async function handleSongRename() {
+        rn_song_button.removeEventListener("click", handleSongRename);
+        currentSong.name = rn_song_input.value;
+        try {
+            let resp = await fetch(GENERAL_ENDPOINT + `/song/${currentSong.id}/`, {
+                method: "PUT",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json;charset=utf-8",
+                    Authorization: "Token " + getCookie("auth_token"),
+                },
+                body: JSON.stringify(currentSong),
+            });
+            if (resp.ok) {
+                let answer = await resp.json();      // Получить JSON ответ от сервера
+                console.log("Song renamed " + answer.name);
+                renameSongModal.hide();
+                await load_playlists();
+                for (i of allPlaylists) {
+                    if (playList.name == i.name) {
+                        playList = i;
+                        await draw_playlist(playList);
+                        break;
+                    }
+                }
+                currentSong = answer;
+                song_title.textContent = currentSong.name;
+            }
+        } catch (err) {
+            alert("Сервер недоступен");
+            console.log(err);
+        }
+    }
+    rn_song_button.addEventListener("click", handleSongRename);
+}
+song_title.addEventListener("click", rename_song);
 
 async function add_song_to_playlist() {
     if (allPlaylists.length == 0) {

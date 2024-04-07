@@ -35,7 +35,7 @@
       <div class="login-wrapper container my-5">
           <div class="mb-3 text-white">
             <label for="login-input" class="form-label"
-              >Login</label
+              >Логин</label
             >
             <input
               type="login"
@@ -44,7 +44,7 @@
             />
           </div>
           <div class="mb-3 text-white">
-            <label for="password-input" class="form-label">Password</label>
+            <label for="password-input" class="form-label">Пароль</label>
             <input
               type="password"
               class="form-control mx-auto"
@@ -52,7 +52,7 @@
             />
           </div>
           </div>
-          <button id="login-button" type="button" class="btn btn-light">Submit</button>
+          <button id="login-button" type="button" class="btn btn-light">Войти</button>
       </div>
     </div>
     <div class="wrapper bg-body-tertiary">
@@ -195,6 +195,26 @@
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
               <button id="rn-pl-button" class="btn btn-primary" type="submit">Переименовать</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="rn-song-modal" tabindex="-1" aria-labelledby="rnSongModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="rnSongModalLabel">Переименование песни</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+              <!-- ПЕРЕИМЕНОВАНИЕ ПЕСНИ -->
+              <input id="rn-song-name" type="text">
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+              <button id="rn-song-button" class="btn btn-primary" type="submit">Переименовать</button>
             </div>
           </div>
         </div>
