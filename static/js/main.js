@@ -717,6 +717,10 @@ player.onplay = async function () {
 };
 
 async function rename_song() {
+    if (!playList.songs.includes(currentSong)) {
+        return;
+    }
+
     const renameSongModal = new bootstrap.Modal("#rn-song-modal");
     renameSongModal.show();
 
