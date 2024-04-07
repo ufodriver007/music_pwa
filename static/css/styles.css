@@ -36,24 +36,25 @@ html {
     white-space: nowrap;
     display: inline-block;
     animation: scroll-text 10s linear infinite;
+    cursor: default;
 }
 
 @keyframes scroll-text {
      0% {
          transform: translateX(200px);
      }
-    33% {
+     33% {
         transform: translateX(3px);
-    }
-    66% {
+     }
+     66% {
         transform: translateX(3px);
-    }
-    100% {
+     }
+     100% {
         transform: translateX(-200px);
      }
 }
 
-}#header-mid {
+#header-mid {
     overflow: hidden;
 }
 

@@ -709,6 +709,14 @@ player.onended = async function () {
     await next_track();
 };
 
+player.onpause = async function () {
+    song_title.style.webkitAnimationPlayState = 'paused';
+};
+
+player.onplay = async function () {
+    song_title.style.webkitAnimationPlayState = 'running';
+};
+
 async function add_song_to_playlist() {
     if (allPlaylists.length == 0) {
         alert("Некуда добавлять! Создайте плейлист.");
