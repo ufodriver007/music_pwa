@@ -1,7 +1,6 @@
 //const DOMAIN = "http://127.0.0.1:8000";
-//const GENERAL_ENDPOINT = "http://127.0.0.1:8000/api/v1";
 const DOMAIN = "https://www.mint-coast.ru";
-const GENERAL_ENDPOINT = "https://www.mint-coast.ru/api/v1";
+const GENERAL_ENDPOINT = DOMAIN + "/api/v1";
 
 
 function setHeight() {
@@ -864,7 +863,7 @@ async function search() {
 
                 new_td_2 = document.createElement("td");
                 new_tr.appendChild(new_td_2);
-                new_td_2.className = "pl-song-artist text-center";
+                new_td_2.className = "rs-song-artist text-center";
                 new_td_2.textContent = json_data[item].author ?? "";
 
                 new_td_3 = document.createElement("td");

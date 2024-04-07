@@ -7,7 +7,7 @@
 }
 
 /* ================================== Media ======================================== */
-@media (max-width: 767px) {
+@media (max-width: 767px) {  /* 767p */
     .pl-song-artist {
         display: none;
       }
@@ -20,6 +20,9 @@
     .pl-song-title {
         font-size: small;
       }
+    .rs-song-artist {
+        display: none;
+    }
 }
 /* ================================== General ======================================== */
 html {
@@ -126,7 +129,8 @@ ul {
   color: black;
 }
 
-.pl-song-artist {
+.pl-song-artist,
+.rs-song-artist{
   color: gray;
   font-size: x-small;
 }
