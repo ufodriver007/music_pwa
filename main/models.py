@@ -23,6 +23,7 @@ class Song(models.Model):
     duration = models.CharField(max_length=200, verbose_name='Длительность сек.', blank=True, null=True)
     album_cover_url = models.CharField(max_length=250, verbose_name='Обложка альбома', blank=True, null=True)
     url = models.CharField(max_length=250, verbose_name='URL песни')
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.name} - {self.author}'

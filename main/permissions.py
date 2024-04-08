@@ -17,7 +17,7 @@ class IsOwnerOrReadOnly(BasePermission):  # т.е. работет на те view
 class UserPermission(BasePermission):
     # разрешение на список объектов
     def has_permission(self, request, view):
-        if request.method == 'POST':                             # создавать могут все
+        if request.method == 'POST':                              # создавать могут все
             return True
         if request.method == 'GET':                               # читать может только админ
             return bool(request.user.is_staff)
@@ -49,7 +49,7 @@ class SongPermission(BasePermission):
             return True
         if request.method == 'PUT':                               # изменять могут все
             return True
-        if request.method == 'DELETE' and request.user.is_staff:  # удалять может только админ
+        if request.method == 'DELETE' and request.user.is_authenticated:
             return True
 
         return False
@@ -61,14 +61,20 @@ class SongPermission(BasePermission):
         if request.method == 'GET':  # читать могут все
             return True
         if request.method == 'PUT':  # изменять может только владелец или админ
-            if request.user and request.user.is_authenticated:
+            if request.user and request.user.is_authenticated or request.user.is_staff:
                 try:
                     Playlist.objects.filter(user=request.user, songs=obj)
                     return True
                 except Exception:
                     return False
-            return bool(request.user.is_staff)
-        if request.method == 'DELETE' and request.user.is_staff:  # удалять может только админ
-            return True
+            return False
+        if request.method == 'DELETE':  # удалять может только админ или владелец
+            if request.user and request.user.is_authenticated or request.user.is_staff:
+                try:
+                    Playlist.objects.filter(user=request.user, songs=obj)
+                    return True
+                except Exception:
+                    return False
+            return False
 
         return False

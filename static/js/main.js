@@ -583,12 +583,28 @@ async function remove_song_from_playlist() {
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json;charset=utf-8",
+                    Authorization: "Token " + getCookie("auth_token"),
                 },
                 body: "",
             }
         );
         if (rem_playlist_query.ok) {
             console.log("Song removed from playlist");
+            // удаление песни из БД
+            let delete_song_query = await fetch(
+            GENERAL_ENDPOINT + `/song/${song_id}/`,
+            {
+                method: "DELETE",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json;charset=utf-8",
+                    Authorization: "Token " + getCookie("auth_token"),
+                },
+                body: "",
+            });
+            if (delete_song_query.ok) {
+                console.log("Song removed from DB");
+            };
         } else {
             console.log("Error! Cant remove song from playlist");
             return;
