@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-from main.utils import get_new_vk_token
 
 
 load_dotenv()
@@ -32,8 +31,8 @@ SECRET_KEY = DJANGO_SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if (os.getenv('DEBUG')) == 'True' else False
 
-ALLOWED_HOSTS = ['127.0.0.1', '89.23.110.30', 'www.mint-coast.ru']
-
+# ALLOWED_HOSTS = ['127.0.0.1', '89.23.110.30', 'www.mint-coast.ru']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -167,5 +166,3 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "http://localhost:3000",
 #     "http://localhost",
 # ]
-
-# get_new_vk_token()

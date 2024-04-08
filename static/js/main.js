@@ -126,6 +126,7 @@ let playList = {
 let search_results = [];
 
 // инициализация элементов страницы
+const page_title = document.querySelector("title");
 const h_username = document.getElementById("username");
 const song_title = document.getElementById("main-song-title");
 const playlist_title = document.getElementById("playlist-title");
@@ -501,6 +502,7 @@ async function play_song() {
                 if (search_results[song].url == song_url) {
                     player.setAttribute("src", search_results[song].url);
                     song_title.textContent = search_results[song].name;
+                    page_title.textContent = search_results[song].name;
                     // Сделать td активным
                     var elements = document.querySelectorAll('.orange'); // выбираем все элементы с классом 'orange'
                     elements.forEach(function(element) {
@@ -519,6 +521,7 @@ async function play_song() {
                 if (song.id == song_id) {
                     let file_name = song.url.split("/").pop();
                     const found_song = await db.files.where('name').equals(file_name).first();
+                    page_title.textContent = song.name;
 
                     if (found_song !== undefined) {
                         // Песня была найдена в БД
