@@ -167,3 +167,5 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "http://localhost:3000",
 #     "http://localhost",
 # ]
+
+CELERY_BROKER_URL = 'redis://redis:6379/0'  # protocol://hostname
