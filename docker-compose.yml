@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  music_site:
+    build:
+      context: .
+    container_name: music_site
+    restart: always
+    volumes:
+      - .:/code
+      - static_volume:/code/static
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/code/static
+    ports:
+      - "80:80"
+    depends_on:
+      - music_site
+
+volumes:
+  static_volume:

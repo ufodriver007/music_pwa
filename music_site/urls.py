@@ -39,7 +39,6 @@ urlpatterns = [
     re_path(r'^manifest\.json$', TemplateView.as_view(template_name="main/manifest.json", content_type="application/json")),
     re_path(r'^sw\.js$', TemplateView.as_view(template_name="main/sw.js", content_type="application/javascript")),
     re_path(r'^sw-toolbox\.js$', TemplateView.as_view(template_name="main/sw-toolbox.js", content_type="application/javascript")),
-    re_path(r'^\.well-known/pki-validation/4E2AAE81D5EBE09AFB890426A00D0A8C\.txt$', TemplateView.as_view(template_name=".well-known/pki-validation/4E2AAE81D5EBE09AFB890426A00D0A8C.txt", content_type="text/plain")),
 
     path('', IndexView.as_view()),
 ]

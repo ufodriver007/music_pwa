@@ -1,5 +1,5 @@
-//const DOMAIN = "http://127.0.0.1:8000";
-const DOMAIN = "https://www.mint-coast.ru";
+const DOMAIN = "http://127.0.0.1";
+//const DOMAIN = "https://www.mint-coast.ru";
 const GENERAL_ENDPOINT = DOMAIN + "/api/v1";
 
 

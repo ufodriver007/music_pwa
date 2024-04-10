@@ -35,6 +35,7 @@ DEBUG = True if (os.getenv('DEBUG')) == 'True' else False
 ALLOWED_HOSTS = ['*']
 
 # Application definition
+SITE_ID = 1
 
 INSTALLED_APPS = [
     'django.contrib.admin',
