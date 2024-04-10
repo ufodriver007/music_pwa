@@ -14,6 +14,7 @@ from main.models import Profile, Playlist, Song
 from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer
 from main.utils import search_song
 import requests
+from celery.result import AsyncResult
 
 
 class UserViewSet(ModelViewSet):
@@ -58,6 +59,7 @@ class SongViewSet(ModelViewSet):
 
 class SearchView(APIView):
     def get(self, request, q):
+        # TO DO: Сделать реализацию получения результатов таски
         return Response(search_song(q))
 
 

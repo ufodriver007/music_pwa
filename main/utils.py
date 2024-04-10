@@ -5,6 +5,7 @@ import requests
 from vkpymusic import TokenReceiver, Service, ServiceAsync
 import json
 import time
+from celery import shared_task
 
 
 def get_new_vk_token():
@@ -119,6 +120,7 @@ async def mail_ru_search(query, count=400):
     return result
 
 
+@shared_task
 def search_song(query: str) -> dict[int: dict]:
     """
     Search string and return list of tuples.
