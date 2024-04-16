@@ -35,7 +35,6 @@ def convert_song_duration(seconds: int) -> str:
 
 async def vk_search(query: str, count=100) -> dict[int: dict]:
     service = ServiceAsync(os.getenv('VK_USER_AGENT'), os.getenv('VK_TOKEN'))
-    # is_actual_token = await service.check_token(os.getenv('VK_TOKEN'))
     try:
         songs = await service.search_songs_by_text(query, count)
 
