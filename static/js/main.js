@@ -256,7 +256,7 @@ async function check_logged() {
             await load_playlists();
             if (allPlaylists.length > 0) {
                 await draw_playlist(allPlaylists[0]);
-            };
+            }
         } else {
             console.log("Не залогинен");
         }
@@ -279,7 +279,7 @@ async function check_logged() {
                 db.playlists.each(pl => {
                     allPlaylists.push(pl.playlist);
                 })
-                .then(async () => {
+                    .then(async () => {
                     if (allPlaylists.length > 0) {
                         await draw_playlist(allPlaylists[0]);
                     }
@@ -595,16 +595,16 @@ async function remove_song_from_playlist() {
             console.log("Song removed from playlist");
             // удаление песни из БД
             let delete_song_query = await fetch(
-            GENERAL_ENDPOINT + `/song/${song_id}/`,
-            {
-                method: "DELETE",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json;charset=utf-8",
-                    Authorization: "Token " + getCookie("auth_token"),
-                },
-                body: "",
-            });
+                GENERAL_ENDPOINT + `/song/${song_id}/`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json;charset=utf-8",
+                        Authorization: "Token " + getCookie("auth_token"),
+                    },
+                    body: "",
+                });
             if (delete_song_query.ok) {
                 console.log("Song removed from DB");
             };
@@ -870,44 +870,85 @@ async function search() {
 
         if (response.ok) {
             let json_data = await response.json();
+            if (json_data.id !== undefined) {
+                console.log(`Task ID получен: ${json_data.id}`);
+                let task_id = json_data.id;
 
-            search_results = json_data;
-            for (item in json_data) {
-                let new_tr = document.createElement("tr");
-                result_table.appendChild(new_tr);
+                const delay = 300; // Задержка в миллисекундах
+                let time = 0;      // общее время опроса сервера
+                async function polling(task_id) {
+                    while (true) {
+                        try {
+                            let resp = await fetch(GENERAL_ENDPOINT + "/get_search_result/", {
+                                method: "POST",
+                                headers: {
+                                    Accept: "application/json",
+                                    "Content-Type": "application/json;charset=utf-8",
+                                    Authorization: "Token " + getCookie("auth_token"),
+                                },
+                                body: JSON.stringify({"task_id": task_id}),
+                            });
+                            if (resp.ok) {
+                                let polling_answer = await resp.json();      // Получить JSON ответ от сервера
+                                if (polling_answer["result"] !== undefined) {
+                                    console.log(`Результат получен.`);
+                                    var polling_result = polling_answer["result"]
+                                    break;
+                                }
+                            }
+                        } catch (err) {
+                            console.log(err);
+                        }
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        time += delay;
+                        if (time > 5000) {
+                            console.log("Timeout");
+                            var polling_result = [];
+                            break;
+                        }
+                    }
+                    search_results = polling_result;
+                    for (item in polling_result) {
+                        let new_tr = document.createElement("tr");
+                        result_table.appendChild(new_tr);
 
-                let new_song_title = document.createElement("td");
-                new_tr.appendChild(new_song_title);
+                        let new_song_title = document.createElement("td");
+                        new_tr.appendChild(new_song_title);
 
-                new_song_title.id = `rs_song_${json_data[item].url}`;
-                new_song_title.className = "pl-song-title srch text-break";
-                new_song_title.textContent = json_data[item].name;
-                new_song_title.addEventListener("click", play_song);
+                        new_song_title.id = `rs_song_${polling_result[item].url}`;
+                        new_song_title.className = "pl-song-title srch text-break";
+                        new_song_title.textContent = polling_result[item].name;
+                        new_song_title.addEventListener("click", play_song);
 
-                new_td_2 = document.createElement("td");
-                new_tr.appendChild(new_td_2);
-                new_td_2.className = "rs-song-artist text-center";
-                new_td_2.textContent = json_data[item].author ?? "";
+                        new_td_2 = document.createElement("td");
+                        new_tr.appendChild(new_td_2);
+                        new_td_2.className = "rs-song-artist text-center";
+                        new_td_2.textContent = polling_result[item].author ?? "";
 
-                new_td_3 = document.createElement("td");
-                new_tr.appendChild(new_td_3);
-                new_td_3.className = "pl-song-duration_text text-center";
-                new_td_3.textContent = json_data[item].duration_text;
+                        new_td_3 = document.createElement("td");
+                        new_tr.appendChild(new_td_3);
+                        new_td_3.className = "pl-song-duration_text text-center";
+                        new_td_3.textContent = polling_result[item].duration_text;
 
-                let new_td_4 = document.createElement("td");
-                new_tr.appendChild(new_td_4);
+                        let new_td_4 = document.createElement("td");
+                        new_tr.appendChild(new_td_4);
 
-                let new_add_button = document.createElement("input");
-                new_td_4.appendChild(new_add_button);
+                        let new_add_button = document.createElement("input");
+                        new_td_4.appendChild(new_add_button);
 
-                new_td_4.className = "text-center";
-                new_add_button.type = "button";
-                new_add_button.id = `add_btn_${json_data[item].url}`;
-                new_add_button.className = "btn btn-dark btn-sm rm-btn";
-                new_add_button.value = "+";
-                new_add_button.addEventListener("click", add_song_to_playlist);
+                        new_td_4.className = "text-center";
+                        new_add_button.type = "button";
+                        new_add_button.id = `add_btn_${polling_result[item].url}`;
+                        new_add_button.className = "btn btn-dark btn-sm rm-btn";
+                        new_add_button.value = "+";
+                        new_add_button.addEventListener("click", add_song_to_playlist);
 
-                search_input.value = "";
+                        search_input.value = "";
+                    }
+                }
+                await polling(task_id);
+            } else {
+                console.error("ID не получен");
             }
         }
     } catch (error) {

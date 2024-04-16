@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+import logging
 from django.views import View
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
@@ -15,6 +16,9 @@ from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer
 from main.utils import search_song
 import requests
 from celery.result import AsyncResult
+
+
+logger = logging.getLogger("my_views")
 
 
 class UserViewSet(ModelViewSet):
@@ -59,8 +63,24 @@ class SongViewSet(ModelViewSet):
 
 class SearchView(APIView):
     def get(self, request, q):
-        # TO DO: Сделать реализацию получения результатов таски
-        return Response(search_song(q))
+        task = search_song.delay(q)
+        return Response({"id": task.id})
+
+
+class SearchResultView(APIView):
+    def get(self, request, task_id):
+        try:
+            result = AsyncResult(task_id)
+            if result.ready():
+                logger.debug(f"Got task result: {result}")
+                return Response({"result": result.get()})
+            return Response({"id": result.status})
+        except TimeoutError as e:
+            logger.debug("Timeout error occurred: %s", e)
+            return Response({"error": "Timeout error occurred"}, status=status.HTTP_408_REQUEST_TIMEOUT)
+        except Exception as e:
+            logger.debug("An error occurred: %s", str(e))
+            return Response({"error": "An internal server error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ConnectSongAndPlaylistView(APIView):
