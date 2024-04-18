@@ -76,16 +76,7 @@ let user = {
 let userToken = "asdfg12345";
 
 // объект песни, воспроизводимой в данный момент
-let currentSong = {
-    name: "Schwarzes Glas",
-    author: "Rammstein",
-    album: "The Best",
-    bitrate: "178",
-    duration_text: "04:06",
-    duration: "246",
-    album_cover_url: null,
-    url: "https://moosic.my.mail.ru/file/7506c40df4ab65def219ceb960d561db.mp3",
-};
+let currentSong = {};
 
 // список всех плейлистов пользователя
 let allPlaylists = [];
@@ -207,6 +198,7 @@ logout_button.addEventListener("click", logout);
 const save_button = document.getElementById("save-button");
 const save_music_button = document.getElementById("save-music-button");
 const save_pl_music_button = document.getElementById("save-pl-music-button");
+const save_song_music_button = document.getElementById("save-song-music-button");
 const save_music_checkbox = document.getElementById("ch-save-music-files");
 save_music_checkbox.addEventListener("change", save_user_info);
 const delete_music_button = document.getElementById("del-music-button");
@@ -464,6 +456,18 @@ async function save_current_playlist_music_files() {
 }
 save_pl_music_button.addEventListener("click", save_current_playlist_music_files);
 
+async function save_current_song_file() {
+    await save_user_info();
+
+    if ( Object.keys(currentSong).length === 0) {
+        alert("Выберите песню для скачивания!");
+    } else {
+        await save_music_file(currentSong.url);
+    }
+    await draw_playlist(playList);
+}
+save_song_music_button.addEventListener("click", save_current_song_file);
+
 async function delete_music_files() {
     if (confirm("Внимание! Вы удаляете все локальные файлы с музыкой!")) {
         // Удаляем файлы музыки из БД
@@ -715,13 +719,13 @@ async function shuffle_playlist() {
     await draw_playlist(playList);
 
     // если песня проигрывается в плейлисте, сделать активной строку с песней
-    if (currentSong) {
+    if ( Object.keys(currentSong).length !== 0) {
         let tds = document.querySelectorAll('#song-list>table>tr>td');
         for (td of tds) {
             if (td.id.slice(8) == currentSong.id) {
                 td.parentNode.classList.add("orange");
             }
-        };
+        }
     }
 }
 shuffle_button.addEventListener("click", shuffle_playlist);
