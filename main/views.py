@@ -22,8 +22,6 @@ class UserViewSet(ModelViewSet):
     permission_classes = [UserPermission]
 
     def perform_create(self, serializer):
-        print(serializer.validated_data['username'])
-        print(serializer.validated_data['password'])
         usr = User.objects.create_user(username=serializer.validated_data['username'], password=serializer.validated_data['password'])
         usr.save()
 
@@ -89,7 +87,7 @@ class IndexView(View):
 
 
 class SongDownloadingProxy(APIView):
-    def get(self, song_id):
+    def get(self, *args, **kwargs):
         url = self.request.GET.get('url')
 
         if url:

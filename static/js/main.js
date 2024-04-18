@@ -289,7 +289,6 @@ async function check_logged() {
         } catch (err) {
             console.log(err);
         }
-        return;
     }
 }
 check_logged();
@@ -429,10 +428,14 @@ async function save_music_file(url) {
     }
 }
 
-async function save_all_music_files() {
-    await save_user_info();
-
-    let urls = allPlaylists.flatMap(pl => pl.songs.map(song => song.url));
+async function download_files_from_list(all_urls) {
+    let urls = [];
+    for (let url of all_urls) {
+        const song_in_local_db = await db.files.where('name').equals(url.split('/').slice(-1)[0]).first();
+        if (song_in_local_db === undefined) {
+            urls.push(url);
+        }
+    }
 
     alert("Всего будет скачано " + urls.length + " файлов");
     totalSize = 0;
@@ -442,20 +445,22 @@ async function save_all_music_files() {
 
     alert("Скачивание завершено. Размер всех скачанных файлов " + (Math.round(totalSize / 1024 / 1024)) + "Мб");
 }
+
+async function save_all_music_files() {
+    await save_user_info();
+
+    let all_urls = allPlaylists.flatMap(pl => pl.songs.map(song => song.url));
+    await download_files_from_list(all_urls);
+    await draw_playlist(playList);
+}
 save_music_button.addEventListener("click", save_all_music_files);
 
 async function save_current_playlist_music_files() {
     await save_user_info();
 
-    let urls = playList.songs.flatMap(song => song.url);
-
-    alert("Всего будет скачано " + urls.length + " файлов");
-    totalSize = 0;
-
-    const downloadPromises = urls.map(url => save_music_file(url));
-    await Promise.all(downloadPromises);
-
-    alert("Скачивание завершено. Размер всех скачанных файлов " + (Math.round(totalSize / 1024 / 1024)) + "Мб");
+    let all_urls = playList.songs.flatMap(song => song.url);
+    await download_files_from_list(all_urls);
+    await draw_playlist(playList);
 }
 save_pl_music_button.addEventListener("click", save_current_playlist_music_files);
 
@@ -674,11 +679,20 @@ async function draw_playlist(playlist_obj) {
         new_tr.appendChild(new_td_4);
 
         let new_rem_button = document.createElement("input");
-        new_td_4.appendChild(new_rem_button);
+        // new_td_4.appendChild(new_rem_button);
+        new_tr.appendChild(new_rem_button);
 
         new_rem_button.type = "button";
         new_rem_button.id = `remove_btn_${song.id}`;
-        new_rem_button.className = "btn btn-dark btn-sm rm-btn my-1";
+
+        // проверяем есть ли песня в лок.бд
+        const song_in_local_db = await db.files.where('name').equals(song.url.split('/').slice(-1)[0]).first();
+        if (song_in_local_db !== undefined) {
+            // если есть в IndexedDB, красим кнопку в зелёный цвет
+            new_rem_button.className = "btn btn-success btn-sm rm-btn my-1";
+        } else {
+            new_rem_button.className = "btn btn-dark btn-sm rm-btn my-1";
+        }
         new_rem_button.value = "-";
         new_rem_button.addEventListener("click", remove_song_from_playlist);
     }
@@ -789,12 +803,13 @@ async function add_song_to_playlist() {
     if (allPlaylists.length == 0) {
         alert("Некуда добавлять! Создайте плейлист.");
         return;
-    };
+    }
     // находим объект песни в результатах по url, содеожащимуся в id кнопки
     let song = {};
     for (item in search_results) {
         if (search_results[item].url == this.id.slice(8)) {
             song = search_results[item];
+            song.url = song.url.split('?')[0];
         }
     }
 
@@ -848,7 +863,6 @@ async function add_song_to_playlist() {
         }
     } catch (err) {
         alert("Сервер недоступен");
-        return;
     }
 }
 
@@ -897,7 +911,8 @@ async function search() {
                 new_tr.appendChild(new_td_4);
 
                 let new_add_button = document.createElement("input");
-                new_td_4.appendChild(new_add_button);
+                // new_td_4.appendChild(new_add_button);
+                new_tr.appendChild(new_add_button)
 
                 new_td_4.className = "text-center";
                 new_add_button.type = "button";

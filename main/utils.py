@@ -2,9 +2,11 @@ import os
 import asyncio
 import aiohttp
 import requests
-from vkpymusic import TokenReceiver, Service, ServiceAsync
+from vkpymusic import TokenReceiver, Service, ServiceAsync, Logger
+import logging
 import json
 import time
+from vkpymusic.ServiceAsync import logger
 
 
 def get_new_vk_token():
@@ -123,6 +125,8 @@ def search_song(query: str) -> dict[int: dict]:
     Search string and return list of tuples.
      Return {0: {name, author, album, ...}}
     """
+    logger.setLevel(logging.WARNING)
+
     async def all_searches(query):
         res_vk = await vk_search(query, count=200)
         res_mail = await mail_ru_search(query, count=200)
