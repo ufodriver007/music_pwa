@@ -459,12 +459,17 @@ save_pl_music_button.addEventListener("click", save_current_playlist_music_files
 async function save_current_song_file() {
     await save_user_info();
 
-    if ( Object.keys(currentSong).length === 0) {
+    if (Object.keys(currentSong).length === 0) {
         alert("Выберите песню для скачивания!");
     } else {
-        await save_music_file(currentSong.url);
+        if (playList.songs.includes(currentSong)) {
+            await save_music_file(currentSong.url);
+            alert(`Будет сохранён файл ${currentSong.name}`);
+            await draw_playlist(playList);
+        } else {
+            alert("Сначала добавьте песню в плейлист");
+        }
     }
-    await draw_playlist(playList);
 }
 save_song_music_button.addEventListener("click", save_current_song_file);
 
@@ -474,6 +479,7 @@ async function delete_music_files() {
         await db.files.clear();
         t_size.textContent = "Общий размер локальной базы данных: 0Мб"
         alert("Все локальные файлы с музыкой удалены");
+        await draw_playlist(playList);
     } else {
         console.log("Удаление локальных файлов отменено пользователем");
     }
@@ -615,7 +621,7 @@ async function remove_song_from_playlist() {
             });
             if (delete_song_query.ok) {
                 console.log("Song removed from DB");
-            };
+            }
         } else {
             console.log("Error! Cant remove song from playlist");
             return;

@@ -104,11 +104,10 @@ html {
     width: 98%;
     margin-left: 10px;
     cursor: default;
+    border-collapse: separate;
+    border-spacing: 0px 7px;
 }
 
-#result-table>tr {
-    margin-top: 5px !important;
-}
 
 audio {
     width: 100%;
