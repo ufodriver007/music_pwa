@@ -817,8 +817,9 @@ async function add_song_to_playlist() {
     // находим объект песни в результатах по url, содеожащимуся в id кнопки
     let song = {};
     for (item in search_results) {
-        if (search_results[item].url == this.id.slice(8)) {
-            song = search_results[item];
+        if (search_results[item].url === this.id.slice(8)) {
+            // создаём поверхностную копию
+            song = { ...search_results[item] };
             song.url = song.url.split('?')[0];
         }
     }
@@ -869,7 +870,8 @@ async function add_song_to_playlist() {
                 }
             }
         } else {
-            console.log("Song dont added to DB!");
+            let answer = await resp.json()
+            console.log(answer);
         }
     } catch (err) {
         alert("Сервер недоступен");
