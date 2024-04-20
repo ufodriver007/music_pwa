@@ -123,6 +123,22 @@ const song_title = document.getElementById("main-song-title");
 const playlist_title = document.getElementById("playlist-title");
 const player = document.getElementById("player");
 const search_input = document.getElementById("search-input");
+search_input.addEventListener('input', function(event) {
+    // Очищаем список предположений для предиктивного ввода
+    datalist.innerHTML = '';
+
+    db.requests.each(req => {
+        if (req.request.toLowerCase().startsWith(event.target.value.toLowerCase())) {
+            // Проверяем количество опций в datalist
+            if (datalist.options.length < 6) {
+                const newOption = document.createElement('option');
+                newOption.value = req.request;
+                datalist.appendChild(newOption);
+                }
+        }
+    })
+});
+const datalist = document.getElementById("suggestions");
 const search_button = document.getElementById("search-button");
 const shuffle_button = document.getElementById("btn-shuffle");
 
@@ -135,6 +151,7 @@ const settings_button = document.getElementById("settings-button");
 
 const pl_table = document.querySelector(".pl-table");
 const result_table = document.getElementById("result_table");
+
 
 //login
 async function login() {
@@ -261,7 +278,7 @@ async function check_logged() {
 
             if (userToken && local_user) {
                 console.log("Данные будут взяты из куки и локальной БД");
-                user.id = local_user.id;
+                user.id = local_user.id;search_input
                 user.username = local_user.username;
 
                 login_screen.style.cssText = "display:none !important";
@@ -290,7 +307,8 @@ var db = new Dexie("UserDatabase");
 db.version(1).stores({
     playlists: "++id,playlist",
     user: "id,username,savelocal",
-    files: '++id, name, data'        // Хранилище для файлов
+    files: '++id, name, data',
+    requests: '++id, request'// Хранилище для файлов
 });
 var totalSize = 0;                   // размер всех файлов при загрузке save_all_music_files()
 var totalIndexedDBSize = 0;          // общий размер локальной БД
@@ -345,6 +363,8 @@ async function delete_user_info() {
         await db.playlists.clear();
         // Удаляем инфо пользователя
         await db.user.clear();
+        //Удаляем историю запросов
+        await db.requests.clear();
     } catch (err) {
         console.log(err);
     }
@@ -888,6 +908,12 @@ async function search() {
     search_input.style.cursor = "wait";
     search_button.style.cursor = "wait";
 
+    // Если в базе в истории запросов нет такого запроса, добавляем
+    let req = await db.requests.where('request').equals(search_input.value).first();
+    if (!req) {
+        await db.requests.add({request: search_input.value});
+    }
+
     try {
         let response = await fetch(
             GENERAL_ENDPOINT + "/search/" + search_input.value
@@ -897,7 +923,7 @@ async function search() {
             let json_data = await response.json();
 
             search_results = json_data;
-            for (item in json_data) {
+            for (let item in json_data) {
                 let new_tr = document.createElement("tr");
                 result_table.appendChild(new_tr);
 
@@ -909,12 +935,12 @@ async function search() {
                 new_song_title.textContent = json_data[item].name;
                 new_song_title.addEventListener("click", play_song);
 
-                new_td_2 = document.createElement("td");
+                let new_td_2 = document.createElement("td");
                 new_tr.appendChild(new_td_2);
                 new_td_2.className = "rs-song-artist text-center";
                 new_td_2.textContent = json_data[item].author ?? "";
 
-                new_td_3 = document.createElement("td");
+                let new_td_3 = document.createElement("td");
                 new_tr.appendChild(new_td_3);
                 new_td_3.className = "pl-song-duration_text text-center";
                 new_td_3.textContent = json_data[item].duration_text;
