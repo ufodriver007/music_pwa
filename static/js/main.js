@@ -1,5 +1,5 @@
-// const DOMAIN = "http://127.0.0.1:8000";
-const DOMAIN = "https://www.mint-coast.ru";
+const DOMAIN = "http://127.0.0.1:8000";
+// const DOMAIN = "https://www.mint-coast.ru";
 const GENERAL_ENDPOINT = DOMAIN + "/api/v1";
 
 
@@ -391,7 +391,7 @@ function get_db_size() {
     return new Promise((resolve, reject) => {
         totalIndexedDBSize = 0;
         db.files.each(item => {
-            totalIndexedDBSize += (item.content.size / 1024 / 1024); // Не вызывайте здесь toFixed(), чтобы сохранить точность
+            totalIndexedDBSize += (item.content.size / 1024 / 1024); // Не вызывать здесь toFixed(), чтобы сохранить точность
         }).then(() => {
             resolve(totalIndexedDBSize.toFixed(1)); // Округление до 1 знака после запятой и передача результата в resolve
         }).catch(error => {

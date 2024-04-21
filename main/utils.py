@@ -133,4 +133,5 @@ def search_song(query: str) -> dict[int: dict]:
         return {**res_vk, **res_mail}
 
     res = asyncio.run(all_searches(query))
+
     return res

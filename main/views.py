@@ -14,6 +14,7 @@ from main.models import Profile, Playlist, Song
 from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer
 from main.utils import search_song
 import requests
+from django.core.cache import cache
 
 
 class UserViewSet(ModelViewSet):
@@ -56,7 +57,14 @@ class SongViewSet(ModelViewSet):
 
 class SearchView(APIView):
     def get(self, request, q):
-        return Response(search_song(q))
+        # Проверяем есть ли в кэше такой запрос
+        cache_data = cache.get(q)
+        if cache_data:
+            return Response(cache_data)
+        else:
+            result = search_song(q)
+            cache.set(q, result, 86400)  # кэшируем на сутки
+            return Response(result)
 
 
 class ConnectSongAndPlaylistView(APIView):
