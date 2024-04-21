@@ -24,6 +24,7 @@ window.addEventListener("resize", setHeight);
 
 let sw = false;
 let orig_width;
+
 function switchSearchList() {
     if (sw === false) {
         const searchList = document.querySelector(".search-list");
@@ -94,7 +95,7 @@ let playList = {
             duration_text: "03:50",
             duration: "230",
             album_cover_url:
-            "https://content-3.foto.my.mail.ru/community/artist_rammstein/_musicplaylistcover/i-280.jpg",
+                "https://content-3.foto.my.mail.ru/community/artist_rammstein/_musicplaylistcover/i-280.jpg",
             url: "https://moosic.my.mail.ru/file/43aa710652c1ca9e967a5bcdd804961d.mp3",
         },
         {
@@ -123,7 +124,7 @@ const song_title = document.getElementById("main-song-title");
 const playlist_title = document.getElementById("playlist-title");
 const player = document.getElementById("player");
 const search_input = document.getElementById("search-input");
-search_input.addEventListener('input', function(event) {
+search_input.addEventListener('input', function (event) {
     // Очищаем список предположений для предиктивного ввода
     datalist.innerHTML = '';
 
@@ -134,7 +135,7 @@ search_input.addEventListener('input', function(event) {
                 const newOption = document.createElement('option');
                 newOption.value = req.request;
                 datalist.appendChild(newOption);
-                }
+            }
         }
     })
 });
@@ -187,6 +188,7 @@ async function login() {
         alert("NetworkError");
     }
 }
+
 login_button.addEventListener("click", login);
 
 //logout
@@ -210,6 +212,7 @@ async function logout() {
 
     await delete_user_info();
 }
+
 logout_button.addEventListener("click", logout);
 
 const save_button = document.getElementById("save-button");
@@ -237,16 +240,17 @@ async function show_settings() {
     // получение общего размера локальной БД
     get_db_size()
         .then(result => {
-        t_size.textContent = "Общий размер локальной базы данных: " + result + "Мб"
-    })
+            t_size.textContent = "Общий размер локальной базы данных: " + result + "Мб"
+        })
 }
+
 settings_button.addEventListener("click", show_settings);
 
 // проверка, что в куках есть токен авторизации, логин и получение user.id
 async function check_logged() {
     try {
         // добавление к запросу рандомных параметров, чтобы запрос не кешировался браузером
-        let response = await fetch(GENERAL_ENDPOINT + "/auth/users/me/?_="  + Math.random(), {
+        let response = await fetch(GENERAL_ENDPOINT + "/auth/users/me/?_=" + Math.random(), {
             method: "GET",
             headers: {
                 Accept: "application/json",
@@ -264,7 +268,8 @@ async function check_logged() {
             await load_playlists();
             if (allPlaylists.length > 0) {
                 await draw_playlist(allPlaylists[0]);
-            };
+            }
+            ;
         } else {
             console.log("Не залогинен");
         }
@@ -272,13 +277,14 @@ async function check_logged() {
         // если нет соединения, проверим что есть userToken в куках и id,
         //   username и плейлисты в локальной БД
         console.log("Сервер недоступен " + err);
-        try{
+        try {
             userToken = getCookie("auth_token");
             local_user = await db.user.orderBy("id").first();
 
             if (userToken && local_user) {
                 console.log("Данные будут взяты из куки и локальной БД");
-                user.id = local_user.id;search_input
+                user.id = local_user.id;
+                search_input
                 user.username = local_user.username;
 
                 login_screen.style.cssText = "display:none !important";
@@ -287,11 +293,11 @@ async function check_logged() {
                 db.playlists.each(pl => {
                     allPlaylists.push(pl.playlist);
                 })
-                .then(async () => {
-                    if (allPlaylists.length > 0) {
-                        await draw_playlist(allPlaylists[0]);
-                    }
-                })
+                    .then(async () => {
+                        if (allPlaylists.length > 0) {
+                            await draw_playlist(allPlaylists[0]);
+                        }
+                    })
             } else {
                 console.log("Пользователь не был залогинен");
             }
@@ -300,6 +306,7 @@ async function check_logged() {
         }
     }
 }
+
 check_logged();
 
 // Declare DB
@@ -355,6 +362,7 @@ async function rename_playlist() {
         }
     });
 }
+
 playlist_title.addEventListener("click", rename_playlist);
 
 async function delete_user_info() {
@@ -431,9 +439,10 @@ async function save_music_file(url) {
         const size = blob.size;
         totalSize += size;
 
-        await db.files.add({ name: file_name, content: blob });
+        await db.files.add({name: file_name, content: blob});
 
         console.log("File " + file_name + " saved to IndexedDB");
+        await draw_playlist(playList);
     } catch (error) {
         alert("Ошибка при сохранении файла");
         console.error('Error downloading file or saving to IndexedDB:', error);
@@ -465,6 +474,7 @@ async function save_all_music_files() {
     await download_files_from_list(all_urls);
     await draw_playlist(playList);
 }
+
 save_music_button.addEventListener("click", save_all_music_files);
 
 async function save_current_playlist_music_files() {
@@ -474,6 +484,7 @@ async function save_current_playlist_music_files() {
     await download_files_from_list(all_urls);
     await draw_playlist(playList);
 }
+
 save_pl_music_button.addEventListener("click", save_current_playlist_music_files);
 
 async function save_current_song_file() {
@@ -484,13 +495,14 @@ async function save_current_song_file() {
     } else {
         if (playList.songs.includes(currentSong)) {
             await save_music_file(currentSong.url);
-            alert(`Будет сохранён файл ${currentSong.name}`);
+            alert(`Сохранён файл ${currentSong.name}`);
             await draw_playlist(playList);
         } else {
             alert("Сначала добавьте песню в плейлист");
         }
     }
 }
+
 save_song_music_button.addEventListener("click", save_current_song_file);
 
 async function delete_music_files() {
@@ -504,6 +516,7 @@ async function delete_music_files() {
         console.log("Удаление локальных файлов отменено пользователем");
     }
 }
+
 delete_music_button.addEventListener("click", delete_music_files);
 
 async function load_playlists() {
@@ -521,8 +534,10 @@ async function load_playlists() {
             allPlaylists = json_data;
         } else {
             allPlaylists = [];
-        };
-    };
+        }
+        ;
+    }
+    ;
 };
 
 async function play_song() {
@@ -539,7 +554,7 @@ async function play_song() {
                     page_title.textContent = search_results[song].name;
                     // Сделать td активным
                     var elements = document.querySelectorAll('.orange'); // выбираем все элементы с классом 'orange'
-                    elements.forEach(function(element) {
+                    elements.forEach(function (element) {
                         element.classList.remove('orange');                // удаляем класс 'orange' у каждого элемента
                     });
                     this.parentNode.classList.add("orange");
@@ -569,7 +584,7 @@ async function play_song() {
                     song_title.textContent = song.name;
                     // Сделать td активным
                     var elements = document.querySelectorAll('.orange'); // выбираем все элементы с классом 'orange'
-                    elements.forEach(function(element) {
+                    elements.forEach(function (element) {
                         element.classList.remove('orange');                // удаляем класс 'orange' у каждого элемента
                     });
                     this.parentNode.classList.add("orange");
@@ -577,13 +592,14 @@ async function play_song() {
                     currentSong = song;
                 }
             }
-        };
+        }
+        ;
     } else {
         // если само переключается на следующий трек
 
         // Сделать td активным
         var elements = document.querySelectorAll('.orange'); // выбираем все элементы с классом 'orange'
-        elements.forEach(function(element) {
+        elements.forEach(function (element) {
             element.classList.remove('orange');                // удаляем класс 'orange' у каждого элемента
         });
         let tds = document.querySelectorAll('#song-list>table>tr>td');
@@ -591,7 +607,8 @@ async function play_song() {
             if (td.id.slice(8) == currentSong.id) {
                 td.parentNode.classList.add("orange");
             }
-        };
+        }
+        ;
 
         song_title.textContent = currentSong.name;
 
@@ -629,16 +646,16 @@ async function remove_song_from_playlist() {
             console.log("Song removed from playlist");
             // удаление песни из БД
             let delete_song_query = await fetch(
-            GENERAL_ENDPOINT + `/song/${song_id}/`,
-            {
-                method: "DELETE",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json;charset=utf-8",
-                    Authorization: "Token " + getCookie("auth_token"),
-                },
-                body: "",
-            });
+                GENERAL_ENDPOINT + `/song/${song_id}/`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json;charset=utf-8",
+                        Authorization: "Token " + getCookie("auth_token"),
+                    },
+                    body: "",
+                });
             if (delete_song_query.ok) {
                 console.log("Song removed from DB");
             }
@@ -726,6 +743,16 @@ async function draw_playlist(playlist_obj) {
         new_rem_button.value = "-";
         new_rem_button.addEventListener("click", remove_song_from_playlist);
     }
+
+    // делаем "активной" если песня сейчас играет
+    if (Object.keys(currentSong).length !== 0) {
+        let tds = document.querySelectorAll('#song-list>table>tr>td');
+        for (let td of tds) {
+            if (td.id.slice(8) == currentSong.id) {
+                td.parentNode.classList.add("orange");
+            }
+        }
+    }
 }
 
 async function reload_playlist(playlist_obj) {
@@ -743,17 +770,8 @@ async function shuffle_playlist() {
     let shuffled_songs = playList.songs.sort(() => Math.random() - 0.5);
     playList.songs = shuffled_songs;
     await draw_playlist(playList);
-
-    // если песня проигрывается в плейлисте, сделать активной строку с песней
-    if ( Object.keys(currentSong).length !== 0) {
-        let tds = document.querySelectorAll('#song-list>table>tr>td');
-        for (td of tds) {
-            if (td.id.slice(8) == currentSong.id) {
-                td.parentNode.classList.add("orange");
-            }
-        }
-    }
 }
+
 shuffle_button.addEventListener("click", shuffle_playlist);
 
 async function next_track() {
@@ -825,8 +843,10 @@ async function rename_song() {
             console.log(err);
         }
     }
+
     rn_song_button.addEventListener("click", handleSongRename);
 }
+
 song_title.addEventListener("click", rename_song);
 
 async function add_song_to_playlist() {
@@ -839,7 +859,7 @@ async function add_song_to_playlist() {
     for (item in search_results) {
         if (search_results[item].url === this.id.slice(8)) {
             // создаём поверхностную копию
-            song = { ...search_results[item] };
+            song = {...search_results[item]};
             song.url = song.url.split('?')[0];
         }
     }
@@ -973,6 +993,7 @@ async function search() {
         search_button.style.cursor = "default";
     }
 }
+
 search_button.addEventListener("click", search);
 
 const choose_playlist_button = document.getElementById("ch-pl-btn");
@@ -998,8 +1019,9 @@ async function choose_playlist() {
         new_div.className = "";
         new_div.id = item.id;
         new_div.textContent = item.name + "(композиций: " + item.songs.length + ")";
+        new_div.style.cursor = "default";
         new_div.addEventListener("click", async () => {
-            for (i of allPlaylists) {
+            for (let i of allPlaylists) {
                 if (new_div.id == i.id) {
                     playList = i;
                     await draw_playlist(playList);
@@ -1051,6 +1073,7 @@ async function create_playlist() {
             console.log(err);
         }
     }
+
     cr_pl_button.addEventListener("click", handlePlaylistCreation);
 }
 
@@ -1079,8 +1102,10 @@ async function delete_playlist() {
                         songs: []
                     };
                     await draw_playlist(playList);
-                };
-            };
+                }
+                ;
+            }
+            ;
         } catch (error) {
             alert("Сервер недоступен");
             console.error("Error deleting playlist: ", error);

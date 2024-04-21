@@ -29,7 +29,11 @@ html {
 
 }
 
-#username {
+#username,
+#h_exampleModal,
+#rnplModalLabel,
+#rnSongModalLabel,
+#exampleModalLabel {
     cursor: default;
 }
 
