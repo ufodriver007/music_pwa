@@ -74,8 +74,6 @@ class SearchView(APIView):
 
 class VKAuth(APIView):
     def get(self, request):
-        logging.basicConfig(level='DEBUG')
-
         try:
             payload = json.loads(request.GET.get('payload'))
             service_token = os.getenv('VK_SERVICE_TOKEN')
@@ -97,35 +95,6 @@ class VKAuth(APIView):
             response = "payload is None"
 
         return render(request, 'test.html', {"content": response.content})
-
-
-class GitOAuthCompleteView(APIView):
-    def get(self, request):
-        code = request.GET.get('code')
-        headers = {
-            "Accept": "application/json"
-        }
-        data = {
-            "client_id": os.getenv('GIT_CLIENT_ID'),
-            "client_secret": os.getenv('GIT_SECRET_KEY'),
-            "code": code,
-            "redirect_uri": os.getenv('DOMAIN') + '/complete/github'
-        }
-        response = requests.post("https://github.com/login/oauth/access_token", data=data, headers=headers)
-        access_token = json.loads(response.text).get('access_token')
-
-        if access_token:
-            dat = {
-                "grant_type": "convert_token",
-                "client_id": "63eD8Z4iDcQbz6yTB2HnuivboUYsOGptbzCwCTRR",
-                "client_secret": "pbkdf2_sha256$720000$EFgZJBWO69Ga4W4ZXqCs9n$YkkBiYQSp+fptGqGczT6dKUeOfJzjraU6esg10p9x2o=",
-                "backend": "github",
-                "token": access_token
-            }
-            resp = requests.post(f"{os.getenv('DOMAIN')}/auth/convert-token", data=dat)
-            print(resp.content)
-
-        return render(request, 'index.html')
 
 
 class ConnectSongAndPlaylistView(APIView):
@@ -152,6 +121,8 @@ class RemoveConnectSongAndPlayView(APIView):
 
 class IndexView(View):
     def get(self, request):
+        logging.basicConfig(level='DEBUG')
+        logging.info('Main page')
         return render(request, 'index.html')
 
 
