@@ -9,7 +9,8 @@ if (DEBUG) {
     VK_APP_ID = 51913447;
 }
 const GENERAL_ENDPOINT = DOMAIN + "/api/v1";
-const VK_REDIRECT_URL = DOMAIN + "/complete/vk";
+//const VK_REDIRECT_URL = DOMAIN + "/complete/vk";
+const VK_REDIRECT_URL = "https://www.mint-coast.ru/complete/vk";
 
 
 function setHeight() {
