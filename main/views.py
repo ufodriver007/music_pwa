@@ -70,6 +70,11 @@ class SearchView(APIView):
             return Response(result)
 
 
+class VKAuth(APIView):
+    def get(self, request):
+        return render(request, 'index.html')
+
+
 class GitOAuthCompleteView(APIView):
     def get(self, request):
         code = request.GET.get('code')
