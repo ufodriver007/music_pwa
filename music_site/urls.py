@@ -32,7 +32,7 @@ urlpatterns = [
     path('api/v1/song/<int:song_id>/remove/<int:playlist_id>/', RemoveConnectSongAndPlayView.as_view()),
     path('api/v1/proxy/', SongDownloadingProxy.as_view(), name='proxy'),
     path('api/v1/search/<str:q>', SearchView.as_view()),
-    path('complete/vk', VKAuth.as_view()),
+    path('complete/vk/', VKAuth.as_view()),
     path(r'api/v1/auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.authtoken')),
     path('admin/', admin.site.urls),
