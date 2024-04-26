@@ -18,6 +18,7 @@ from django.core.cache import cache
 from dotenv import load_dotenv
 import os
 import json
+import logging
 
 
 class UserViewSet(ModelViewSet):
@@ -26,7 +27,8 @@ class UserViewSet(ModelViewSet):
     permission_classes = [UserPermission]
 
     def perform_create(self, serializer):
-        usr = User.objects.create_user(username=serializer.validated_data['username'], password=serializer.validated_data['password'])
+        usr = User.objects.create_user(username=serializer.validated_data['username'],
+                                       password=serializer.validated_data['password'])
         usr.save()
 
 
@@ -35,11 +37,11 @@ class PlaylistViewSet(ModelViewSet):
     serializer_class = PlaylistSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
-    filter_backends = [DjangoFilterBackend]            # указываем бэкенд фильтрации
-    filterset_fields = ['user']                        # поля для фильтрации
+    filter_backends = [DjangoFilterBackend]  # указываем бэкенд фильтрации
+    filterset_fields = ['user']  # поля для фильтрации
 
     def create(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id         # Устанавливаем текущего пользователя в поле "user"
+        request.data['user'] = request.user.id  # Устанавливаем текущего пользователя в поле "user"
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -72,8 +74,10 @@ class SearchView(APIView):
 
 class VKAuth(APIView):
     def get(self, request):
-        payload = json.loads(request.GET.get('payload'))
-        if payload:
+        logging.basicConfig(level='DEBUG')
+
+        try:
+            payload = json.loads(request.GET.get('payload'))
             service_token = os.getenv('VK_SERVICE_TOKEN')
             uuid = payload['uuid']
             silent_token = payload['token']
@@ -86,7 +90,10 @@ class VKAuth(APIView):
             }
 
             response = requests.post('https://api.vk.com/method/auth.exchangeSilentAuthToken', data=data)
-        else:
+            logging.info(response.content)
+
+        except Exception as e:
+            logging.info(e)
             response = "payload is None"
 
         return render(request, 'test.html', {"content": response.content})
