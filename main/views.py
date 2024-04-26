@@ -15,6 +15,9 @@ from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer
 from main.utils import search_song
 import requests
 from django.core.cache import cache
+from dotenv import load_dotenv
+import os
+import json
 
 
 class UserViewSet(ModelViewSet):
@@ -65,6 +68,35 @@ class SearchView(APIView):
             result = search_song(q)
             cache.set(q, result, 86400)  # кэшируем на сутки
             return Response(result)
+
+
+class GitOAuthCompleteView(APIView):
+    def get(self, request):
+        code = request.GET.get('code')
+        headers = {
+            "Accept": "application/json"
+        }
+        data = {
+            "client_id": os.getenv('GIT_CLIENT_ID'),
+            "client_secret": os.getenv('GIT_SECRET_KEY'),
+            "code": code,
+            "redirect_uri": os.getenv('DOMAIN') + '/complete/github'
+        }
+        response = requests.post("https://github.com/login/oauth/access_token", data=data, headers=headers)
+        access_token = json.loads(response.text).get('access_token')
+
+        if access_token:
+            dat = {
+                "grant_type": "convert_token",
+                "client_id": "63eD8Z4iDcQbz6yTB2HnuivboUYsOGptbzCwCTRR",
+                "client_secret": "pbkdf2_sha256$720000$EFgZJBWO69Ga4W4ZXqCs9n$YkkBiYQSp+fptGqGczT6dKUeOfJzjraU6esg10p9x2o=",
+                "backend": "github",
+                "token": access_token
+            }
+            resp = requests.post(f"{os.getenv('DOMAIN')}/auth/convert-token", data=dat)
+            print(resp.content)
+
+        return render(request, 'index.html')
 
 
 class ConnectSongAndPlaylistView(APIView):

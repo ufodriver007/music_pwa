@@ -176,6 +176,15 @@ ul {
     width: 200px;
 }
 
+#vk-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+#VkIdSdkOneTap {
+    width: 250px;
+}
+
 #username {
     color: var(--accent-color);
 }

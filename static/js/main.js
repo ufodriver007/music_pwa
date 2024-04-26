@@ -1,6 +1,15 @@
-// const DOMAIN = "http://127.0.0.1:8000";
-const DOMAIN = "https://www.mint-coast.ru";
+const DEBUG = false;
+let DOMAIN = "";
+let VK_APP_ID = "";
+if (DEBUG) {
+    DOMAIN = "http://127.0.0.1:8000";
+    VK_APP_ID = "51778698";
+} else {
+    DOMAIN = "https://www.mint-coast.ru";
+    VK_APP_ID = "51787795";
+}
 const GENERAL_ENDPOINT = DOMAIN + "/api/v1";
+const VK_REDIRECT_URL = DOMAIN + "/complete/vk";
 
 
 function setHeight() {
@@ -153,6 +162,22 @@ const settings_button = document.getElementById("settings-button");
 const pl_table = document.querySelector(".pl-table");
 const result_table = document.getElementById("result_table");
 
+//Отрисовка кнопки VK
+const VKID = window.VKIDSDK;
+VKID.Config.set({
+  app: VK_APP_ID, // Идентификатор приложения.
+  redirectUrl: VK_REDIRECT_URL, // Адрес для перехода после авторизации.
+  state: 'dj29fnsadjsd82dj29fnsadjsd82' // Произвольная строка состояния приложения.
+});
+// Создание экземпляра кнопки.
+const oneTap = new VKID.OneTap();
+// Получение контейнера из разметки.
+const container = document.getElementById('VkIdSdkOneTap');
+// Проверка наличия кнопки в разметке.
+if (container) {
+  // Отрисовка кнопки в контейнере с именем приложения APP_NAME, светлой темой и на русском языке.
+  oneTap.render({ container: container, scheme: VKID.Scheme.LIGHT, lang: VKID.Languages.RUS });
+}
 
 //login
 async function login() {
@@ -190,6 +215,25 @@ async function login() {
 }
 
 login_button.addEventListener("click", login);
+
+// async function git_login() {
+//     try {
+//         let response = await fetch('https://github.com/login/oauth/authorize?client_id='
+//             + GIT_CLIENT_ID
+//             + '&redirect_uri='
+//             + DOMAIN
+//             + '/complete/github/ ');
+//
+//         if (response.ok) {
+//
+//         } else {
+//             console.log("Не залогинен");
+//         }
+//     } catch (err) {
+//         alert("NetworkError");
+//     }
+// }
+// login_git_button.addEventListener("click", git_login);
 
 //logout
 async function logout() {
@@ -269,7 +313,6 @@ async function check_logged() {
             if (allPlaylists.length > 0) {
                 await draw_playlist(allPlaylists[0]);
             }
-            ;
         } else {
             console.log("Не залогинен");
         }
@@ -593,24 +636,23 @@ async function play_song() {
                 }
             }
         }
-        ;
     } else {
         // если само переключается на следующий трек
 
         // Сделать td активным
-        var elements = document.querySelectorAll('.orange'); // выбираем все элементы с классом 'orange'
+        elements = document.querySelectorAll('.orange'); // выбираем все элементы с классом 'orange'
         elements.forEach(function (element) {
             element.classList.remove('orange');                // удаляем класс 'orange' у каждого элемента
         });
         let tds = document.querySelectorAll('#song-list>table>tr>td');
-        for (td of tds) {
+        for (let td of tds) {
             if (td.id.slice(8) == currentSong.id) {
                 td.parentNode.classList.add("orange");
             }
         }
-        ;
 
         song_title.textContent = currentSong.name;
+        page_title.textContent = currentSong.name;
 
         let file_name = currentSong.url.split("/").pop();
         const found_song = await db.files.where('name').equals(file_name).first();
