@@ -74,7 +74,9 @@ class SearchView(APIView):
 
 class VKAuth(APIView):
     def get(self, request):
+        logging.basicConfig(level='DEBUG')
         logger = logging.getLogger("my_views")
+        logger.debug('Inside VKAuth')
         try:
             payload = json.loads(request.GET.get('payload'))
             service_token = os.getenv('VK_SERVICE_TOKEN')
