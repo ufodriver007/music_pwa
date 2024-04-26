@@ -1,12 +1,12 @@
 const DEBUG = false;
 let DOMAIN = "";
-let VK_APP_ID = "";
+let VK_APP_ID = 0;
 if (DEBUG) {
     DOMAIN = "http://127.0.0.1:8000";
-    VK_APP_ID = "51778698";
+    VK_APP_ID = 51778698;
 } else {
     DOMAIN = "https://www.mint-coast.ru";
-    VK_APP_ID = "51787795";
+    VK_APP_ID = 51913447;
 }
 const GENERAL_ENDPOINT = DOMAIN + "/api/v1";
 const VK_REDIRECT_URL = DOMAIN + "/complete/vk";
@@ -167,7 +167,7 @@ const VKID = window.VKIDSDK;
 VKID.Config.set({
   app: VK_APP_ID, // Идентификатор приложения.
   redirectUrl: VK_REDIRECT_URL, // Адрес для перехода после авторизации.
-  state: 'dj29fnsadjsd82dj29fnsadjsd82' // Произвольная строка состояния приложения.
+  state: 'dj29fnsadjsd82...' // Произвольная строка состояния приложения.
 });
 // Создание экземпляра кнопки.
 const oneTap = new VKID.OneTap();
