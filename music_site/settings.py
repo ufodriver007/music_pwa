@@ -168,3 +168,29 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "http://localhost:3000",
 #     "http://localhost",
 # ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "site_log.log"),
+            'formatter': 'simple',
+        },
+    },
+    "loggers": {
+        "my_views": {
+            "handlers": ["file"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
+            "propagate": False,
+        },
+    },
+    'formatters': {
+        'simple': {
+            'format': '{asctime} - {levelname} - {name} - {message}',
+            'style': '{'
+        }
+    },
+}

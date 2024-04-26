@@ -74,6 +74,7 @@ class SearchView(APIView):
 
 class VKAuth(APIView):
     def get(self, request):
+        logger = logging.getLogger("my_views")
         try:
             payload = json.loads(request.GET.get('payload'))
             service_token = os.getenv('VK_SERVICE_TOKEN')
@@ -88,10 +89,10 @@ class VKAuth(APIView):
             }
 
             response = requests.post('https://api.vk.com/method/auth.exchangeSilentAuthToken', data=data)
-            logging.info(response.content)
+            logger.debug(response.content)
 
         except Exception as e:
-            logging.info(e)
+            logger.debug(e)
             response = "payload is None"
 
         return render(request, 'test.html', {"content": response.content})
@@ -122,7 +123,8 @@ class RemoveConnectSongAndPlayView(APIView):
 class IndexView(View):
     def get(self, request):
         logging.basicConfig(level='DEBUG')
-        logging.info('Main page')
+        logger = logging.getLogger("my_views")
+        logger.debug('Main page')
         return render(request, 'index.html')
 
 
