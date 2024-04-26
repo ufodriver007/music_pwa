@@ -72,7 +72,24 @@ class SearchView(APIView):
 
 class VKAuth(APIView):
     def get(self, request):
-        return render(request, 'index.html')
+        payload = json.loads(request.GET.get('payload'))
+        if payload:
+            service_token = os.getenv('VK_SERVICE_TOKEN')
+            uuid = payload['uuid']
+            silent_token = payload['token']
+
+            data = {
+                'v': '5.131',
+                'token': silent_token,
+                'access_token': service_token,
+                'uuid': uuid,
+            }
+
+            response = requests.post('https://api.vk.com/method/auth.exchangeSilentAuthToken', data=data)
+        else:
+            response = "payload is None"
+
+        return render(request, 'test.html', {"content": response.content})
 
 
 class GitOAuthCompleteView(APIView):
