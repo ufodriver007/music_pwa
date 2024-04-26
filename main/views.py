@@ -91,7 +91,11 @@ class VKAuth(APIView):
             }
 
             response = requests.post('https://api.vk.com/method/auth.exchangeSilentAuthToken', data=data)
-            logger.debug(response.content)
+            resp = json.loads(response.text)
+            access_token = resp['response']['access_token']
+            email = resp['response']['email']
+            logger.debug(f'access_token: {access_token}')
+            logger.debug(f'email: {email}')
 
         except Exception as e:
             logger.debug(e)
