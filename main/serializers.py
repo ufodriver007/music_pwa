@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
-from main.models import Profile, Playlist, Song
+from main.models import SocialProfile, Playlist, Song
 
 
 class UserSerializer(ModelSerializer):

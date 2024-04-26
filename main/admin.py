@@ -1,11 +1,11 @@
 from django.contrib import admin
-from main.models import Profile, Playlist, Song
+from main.models import SocialProfile, Playlist, Song
 
 
-@admin.register(Profile)
+@admin.register(SocialProfile)
 class MUserAdmin(admin.ModelAdmin):
-    list_display = ("user", "description")
-    search_fields = ("user", "description")
+    list_display = ("user", "social_id")
+    search_fields = ("user", "social_id")
 
 
 @admin.register(Playlist)

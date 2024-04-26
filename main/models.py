@@ -2,16 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class Profile(models.Model):
+class SocialProfile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    description = models.CharField(max_length=250, verbose_name='Описание', blank=True)
+    token = models.CharField(max_length=250, blank=True)
+    social_id = models.CharField(max_length=250, blank=True)
 
     def __str__(self):
         return f'{self.user.username}'
 
     class Meta:
-        verbose_name = 'Профиль'
-        verbose_name_plural = 'Профили'
+        verbose_name = 'Соц. профиль'
+        verbose_name_plural = 'Соц. профили'
 
 
 class Song(models.Model):

@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from django.contrib.auth.models import User
-from main.models import Profile, Playlist, Song
+from main.models import SocialProfile, Playlist, Song
 from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer
 from main.utils import search_song
 import requests
@@ -76,7 +76,7 @@ class VKAuth(APIView):
     def get(self, request):
         logging.basicConfig(level='DEBUG')
         logger = logging.getLogger("my_views")
-        logger.debug('Inside VKAuth')
+        profile = None
         try:
             payload = json.loads(request.GET.get('payload'))
             service_token = os.getenv('VK_SERVICE_TOKEN')
@@ -84,7 +84,7 @@ class VKAuth(APIView):
             silent_token = payload['token']
 
             data = {
-                'v': '5.131',
+                'v': '5.199',
                 'token': silent_token,
                 'access_token': service_token,
                 'uuid': uuid,
@@ -94,14 +94,47 @@ class VKAuth(APIView):
             resp = json.loads(response.text)
             access_token = resp['response']['access_token']
             email = resp['response']['email']
-            logger.debug(f'access_token: {access_token}')
-            logger.debug(f'email: {email}')
+            user_id = resp['response']['user_id']
+
+            profile = SocialProfile.objects.get(social_id=user_id)
+            if profile:
+                logger.debug(f'User with social_id({user_id}) exist')
+            else:
+                # если пользователь НЕ существует, получаем имя, фамилию
+                logger.debug(f'User with social_id({user_id}) does not exist')
+
+                def get_profile_info(token: str):
+                    request_data = {
+                        "access_token": token,
+                        "v": "5.199"
+                    }
+                    profile_info = requests.post("https://api.vk.com/method/account.getProfileInfo", data=request_data)
+                    resp = json.loads(profile_info.text)
+                    first_name = resp['response']['first_name']
+                    last_name = resp['response']['last_name']
+                    return {'first_name': first_name, 'last_name': last_name}
+
+                info = get_profile_info(access_token)
+                first_name = info['first_name']
+                last_name = info['last_name']
+
+                # создаём экземпляр модели пользователя, заполняем его, сохраняем
+                new_user = User.objects.create_user(username=first_name,
+                                                    email=email,
+                                                    password=first_name + user_id,
+                                                    first_name=first_name,
+                                                    last_name=last_name)
+                new_user.save()
+                profile = SocialProfile.objects.create(user=new_user,
+                                                       token=access_token,
+                                                       social_id=user_id)
+                profile.save()
 
         except Exception as e:
             logger.debug(e)
             response = "payload is None"
 
-        return render(request, 'test.html', {"content": response.content})
+        return render(request, 'test.html', {"profile": profile})
 
 
 class ConnectSongAndPlaylistView(APIView):
@@ -128,9 +161,6 @@ class RemoveConnectSongAndPlayView(APIView):
 
 class IndexView(View):
     def get(self, request):
-        logging.basicConfig(level='DEBUG')
-        logger = logging.getLogger("my_views")
-        logger.debug('Main page')
         return render(request, 'index.html')
 
 

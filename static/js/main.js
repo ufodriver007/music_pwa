@@ -3,7 +3,7 @@ let DOMAIN = "";
 let VK_APP_ID = 0;
 if (DEBUG) {
     DOMAIN = "http://127.0.0.1:8000";
-    VK_APP_ID = 51778698;
+    VK_APP_ID = 0;
 } else {
     DOMAIN = "https://www.mint-coast.ru";
     VK_APP_ID = 51913447;
