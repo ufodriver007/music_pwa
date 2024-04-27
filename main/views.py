@@ -100,6 +100,7 @@ class VKAuth(APIView):
             profile = SocialProfile.objects.filter(social_id=user_id).exists()
             if profile:
                 logger.debug(f'User with social_id({user_id}) already exists')
+                new_user = SocialProfile.objects.get(social_id=user_id)
             else:
                 # если пользователь НЕ существует, получаем имя, фамилию
                 logger.debug(f'User with social_id({user_id}) does not exist')
