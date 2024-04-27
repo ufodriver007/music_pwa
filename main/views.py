@@ -135,7 +135,7 @@ class VKAuth(APIView):
             logger.debug(e)
             response = "payload is None"
 
-        return render(request, 'test.html', {"profile": profile})
+        return render(request, 'test.html', {"new_user": new_user})
 
 
 class ConnectSongAndPlaylistView(APIView):

@@ -6,10 +6,12 @@
 </head>
 <body>
     {% load static %}
-    {{ profile }}
+    {{ new_user }}
     <br>
-    {{ profile.user }}
+    {{ new_user.username }}
     <br>
-    {{ profile.user.username }}
+    {{ new_user.email }}
+    <br>
+    {{ new_user.password }}
 </body>
 </html>
