@@ -167,7 +167,6 @@ const VKID = window.VKIDSDK;
 VKID.Config.set({
   app: VK_APP_ID, // Идентификатор приложения.
   redirectUrl: VK_REDIRECT_URL, // Адрес для перехода после авторизации.
-  showAlternativeLogin: true
   // state: 'dj29fnsadjsd82...' // Произвольная строка состояния приложения.
 });
 // Создание экземпляра кнопки.
@@ -177,7 +176,7 @@ const container = document.getElementById('VkIdSdkOneTap');
 // Проверка наличия кнопки в разметке.
 if (container) {
   // Отрисовка кнопки в контейнере с именем приложения APP_NAME, светлой темой и на русском языке.
-  oneTap.render({ container: container, scheme: VKID.Scheme.LIGHT, lang: VKID.Languages.RUS });
+  oneTap.render({ container: container, scheme: VKID.Scheme.LIGHT, lang: VKID.Languages.RUS, showAlternativeLogin: true });
 }
 
 //login
