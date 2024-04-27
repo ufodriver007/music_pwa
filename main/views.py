@@ -11,11 +11,10 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from django.contrib.auth.models import User
 from main.models import SocialProfile, Playlist, Song
-from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer
+from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer, SocialProfileSerializer
 from main.utils import search_song
 import requests
 from django.core.cache import cache
-from dotenv import load_dotenv
 import os
 import json
 import logging
@@ -123,7 +122,7 @@ class VKAuth(APIView):
                 # создаём экземпляр модели пользователя, заполняем его, сохраняем
                 new_user = User.objects.create_user(username=user_id,
                                                     email=email,
-                                                    password=first_name + user_id,
+                                                    password=first_name + str(user_id),
                                                     first_name=first_name,
                                                     last_name=last_name)
                 new_user.save()

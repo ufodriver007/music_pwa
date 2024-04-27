@@ -167,7 +167,7 @@ const VKID = window.VKIDSDK;
 VKID.Config.set({
   app: VK_APP_ID, // Идентификатор приложения.
   redirectUrl: VK_REDIRECT_URL, // Адрес для перехода после авторизации.
-  state: 'dj29fnsadjsd82...' // Произвольная строка состояния приложения.
+  // state: 'dj29fnsadjsd82...' // Произвольная строка состояния приложения.
 });
 // Создание экземпляра кнопки.
 const oneTap = new VKID.OneTap();
@@ -215,25 +215,6 @@ async function login() {
 }
 
 login_button.addEventListener("click", login);
-
-// async function git_login() {
-//     try {
-//         let response = await fetch('https://github.com/login/oauth/authorize?client_id='
-//             + GIT_CLIENT_ID
-//             + '&redirect_uri='
-//             + DOMAIN
-//             + '/complete/github/ ');
-//
-//         if (response.ok) {
-//
-//         } else {
-//             console.log("Не залогинен");
-//         }
-//     } catch (err) {
-//         alert("NetworkError");
-//     }
-// }
-// login_git_button.addEventListener("click", git_login);
 
 //logout
 async function logout() {
