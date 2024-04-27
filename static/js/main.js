@@ -293,6 +293,8 @@ async function check_logged() {
             await load_playlists();
             if (allPlaylists.length > 0) {
                 await draw_playlist(allPlaylists[0]);
+            } else  {
+                alert("У Вас нет плейлистов. Вы можете создать плейлист, нажав кнопку '+'");
             }
         } else {
             console.log("Не залогинен");
@@ -563,10 +565,8 @@ async function load_playlists() {
         } else {
             allPlaylists = [];
         }
-        ;
     }
-    ;
-};
+}
 
 async function play_song() {
     if (this.id !== undefined) {
@@ -1125,7 +1125,7 @@ async function delete_playlist() {
                     await draw_playlist(playList);
                 } else {
                     playList = {
-                        name: "You don't have playlists",
+                        name: "-//-",
                         songs: []
                     };
                     await draw_playlist(playList);
