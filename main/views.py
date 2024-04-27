@@ -97,9 +97,10 @@ class VKAuth(APIView):
             user_id = resp['response']['user_id']
 
             logger.debug(f'User social_id: {user_id}')
-            profile = SocialProfile.objects.get(social_id=user_id)
+            # profile = SocialProfile.objects.get(social_id=user_id)
+            profile = SocialProfile.objects.filter(social_id=user_id).exists()
             if profile:
-                logger.debug(f'User with social_id({user_id}) exist')
+                logger.debug(f'User with social_id({user_id}) already exists')
             else:
                 # если пользователь НЕ существует, получаем имя, фамилию
                 logger.debug(f'User with social_id({user_id}) does not exist')
@@ -120,7 +121,7 @@ class VKAuth(APIView):
                 last_name = info['last_name']
 
                 # создаём экземпляр модели пользователя, заполняем его, сохраняем
-                new_user = User.objects.create_user(username=first_name,
+                new_user = User.objects.create_user(username=user_id,
                                                     email=email,
                                                     password=first_name + user_id,
                                                     first_name=first_name,
