@@ -170,6 +170,8 @@ class IndexView(View):
         username = request.session.get('username')
         password = request.session.get('password')
         if username and password:
+            del request.session['username']
+            del request.session['password']
             return render(request, 'index.html', {'username': username, 'password': password})
         return render(request, 'index.html')
 
