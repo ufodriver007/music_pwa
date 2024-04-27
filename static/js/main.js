@@ -331,7 +331,11 @@ async function check_logged() {
     }
 }
 
-check_logged();
+if (login_input.value && password_input.value) {
+    login();
+} else {
+    check_logged();
+}
 
 // Declare DB
 var db = new Dexie("UserDatabase");
