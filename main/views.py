@@ -75,7 +75,6 @@ class VKAuth(APIView):
     def get(self, request):
         logging.basicConfig(level='DEBUG')
         logger = logging.getLogger("my_views")
-        profile = None
         try:
             payload = json.loads(request.GET.get('payload'))
             service_token = os.getenv('VK_SERVICE_TOKEN')
@@ -110,9 +109,9 @@ class VKAuth(APIView):
                         "v": "5.199"
                     }
                     profile_info = requests.post("https://api.vk.com/method/account.getProfileInfo", data=request_data)
-                    resp = json.loads(profile_info.text)
-                    first_name = resp['response']['first_name']
-                    last_name = resp['response']['last_name']
+                    r = json.loads(profile_info.text)
+                    first_name = r['response']['first_name']
+                    last_name = r['response']['last_name']
                     return {'first_name': first_name, 'last_name': last_name}
 
                 info = get_profile_info(access_token)
@@ -138,7 +137,7 @@ class VKAuth(APIView):
             user = None
             password = None
 
-        return render(request, 'test.html', {'user': user, 'password': password})
+        return render(request, 'index.html', {'user': user, 'password': password})
 
 
 class ConnectSongAndPlaylistView(APIView):
