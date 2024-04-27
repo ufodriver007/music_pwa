@@ -140,12 +140,8 @@ class VKAuth(APIView):
         request.session['user'] = user
         request.session['password'] = password
 
-        u = request.session.get('user')
-        p = request.session.get('password')
-        logger.debug(u)
-        logger.debug(p)
-        return redirect('index')
-        # return render(request, 'index.html', {'user': user, 'password': password})
+        # return redirect('index')
+        return render(request, 'index.html')
 
 
 class ConnectSongAndPlaylistView(APIView):
@@ -174,7 +170,9 @@ class IndexView(View):
     def get(self, request):
         user = request.session.get('user')
         password = request.session.get('password')
-        return render(request, 'index.html', {'user': user, 'password': password})
+        if user and password:
+            return render(request, 'index.html', {'user': user, 'password': password})
+        return render(request, 'index.html')
 
 
 class SongDownloadingProxy(APIView):
