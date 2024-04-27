@@ -99,7 +99,7 @@ class VKAuth(APIView):
                 logger.debug(f'User with social_id({user_id}) already exists')
                 social_prof = SocialProfile.objects.get(social_id=user_id)
                 user = User.objects.get(id=social_prof.user.id)
-                password = user.first_name + str(user.id) + os.getenv('SITE_SALT')
+                password = user.first_name + str(user_id) + os.getenv('SITE_SALT')
             else:
                 # если пользователь НЕ существует, получаем имя, фамилию
                 logger.debug(f'User with social_id({user_id}) does not exist')
