@@ -167,6 +167,7 @@ const VKID = window.VKIDSDK;
 VKID.Config.set({
   app: VK_APP_ID, // Идентификатор приложения.
   redirectUrl: VK_REDIRECT_URL, // Адрес для перехода после авторизации.
+  showAlternativeLogin: true
   // state: 'dj29fnsadjsd82...' // Произвольная строка состояния приложения.
 });
 // Создание экземпляра кнопки.
