@@ -95,12 +95,8 @@ class VKAuth(APIView):
             email = resp['response']['email']
             user_id = resp['response']['user_id']
 
-            logger.debug(f'User social_id: {user_id}')
-            # profile = SocialProfile.objects.get(social_id=user_id)
-            profile = SocialProfile.objects.filter(social_id=user_id).exists()
-            if profile:
+            if SocialProfile.objects.filter(social_id=user_id).exists():
                 logger.debug(f'User with social_id({user_id}) already exists')
-                new_user = SocialProfile.objects.get(social_id=user_id)
             else:
                 # если пользователь НЕ существует, получаем имя, фамилию
                 logger.debug(f'User with social_id({user_id}) does not exist')
@@ -131,12 +127,13 @@ class VKAuth(APIView):
                                                        token=access_token,
                                                        social_id=user_id)
                 profile.save()
+            user = SocialProfile.objects.get(social_id=user_id)
 
         except Exception as e:
             logger.debug(e)
-            response = "payload is None"
+            user = None
 
-        return render(request, 'test.html', {"new_user": new_user})
+        return render(request, 'test.html', {"user": user})
 
 
 class ConnectSongAndPlaylistView(APIView):
