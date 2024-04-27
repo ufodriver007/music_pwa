@@ -99,6 +99,7 @@ class VKAuth(APIView):
                 logger.debug(f'User with social_id({user_id}) already exists')
                 social_prof = SocialProfile.objects.get(social_id=user_id)
                 user = User.objects.get(id=social_prof.user.id)
+                password = user.first_name + str(user.id) + os.getenv('SITE_SALT')
             else:
                 # если пользователь НЕ существует, получаем имя, фамилию
                 logger.debug(f'User with social_id({user_id}) does not exist')
@@ -119,9 +120,9 @@ class VKAuth(APIView):
                 last_name = info['last_name']
 
                 # создаём экземпляр модели пользователя, заполняем его, сохраняем
-                new_user = User.objects.create_user(username=user_id,
+                new_user = User.objects.create_user(username=first_name + str(user_id),
                                                     email=email,
-                                                    password=first_name + str(user_id),
+                                                    password=first_name + str(user_id) + os.getenv('SITE_SALT'),
                                                     first_name=first_name,
                                                     last_name=last_name)
                 new_user.save()
@@ -129,15 +130,15 @@ class VKAuth(APIView):
                                                        token=access_token,
                                                        social_id=user_id)
                 profile.save()
+                password = first_name + str(user_id) + os.getenv('SITE_SALT')
                 user = new_user
 
         except Exception as e:
             logger.debug(e)
             user = None
+            password = None
 
-        logger.debug(f'Username: {user.username}')
-        logger.debug(f'Password: {user.password}')
-        return render(request, 'test.html', {"user": user})
+        return render(request, 'test.html', {'user': user, 'password': password})
 
 
 class ConnectSongAndPlaylistView(APIView):
