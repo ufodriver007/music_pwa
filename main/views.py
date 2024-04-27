@@ -137,7 +137,7 @@ class VKAuth(APIView):
             user = None
             password = None
 
-        return redirect('index')
+        return redirect('index', user, password)
         # return render(request, 'index.html', {'user': user, 'password': password})
 
 
