@@ -137,7 +137,7 @@ class VKAuth(APIView):
             user = None
             password = None
 
-        request.session['user'] = user
+        request.session['username'] = user.username
         request.session['password'] = password
 
         return redirect('index')
@@ -167,10 +167,10 @@ class RemoveConnectSongAndPlayView(APIView):
 
 class IndexView(View):
     def get(self, request):
-        user = request.session.get('user')
+        username = request.session.get('username')
         password = request.session.get('password')
-        if user and password:
-            return render(request, 'index.html', {'user': user, 'password': password})
+        if username and password:
+            return render(request, 'index.html', {'username': username, 'password': password})
         return render(request, 'index.html')
 
 
