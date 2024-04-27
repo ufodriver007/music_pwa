@@ -137,7 +137,7 @@ class VKAuth(APIView):
             user = None
             password = None
 
-        return redirect(request, 'index.html', {'user': user, 'password': password})
+        return redirect('index', {'user': user, 'password': password})
 
 
 class ConnectSongAndPlaylistView(APIView):
