@@ -8,7 +8,7 @@ class SocialProfile(models.Model):
     social_id = models.CharField(max_length=250, blank=True)
 
     def __str__(self):
-        return f'{self.user.username}'
+        return f'{self.social_id}'
 
     class Meta:
         verbose_name = 'Соц. профиль'

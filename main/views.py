@@ -96,6 +96,7 @@ class VKAuth(APIView):
             email = resp['response']['email']
             user_id = resp['response']['user_id']
 
+            logger.debug(f'User social_id: {user_id}')
             profile = SocialProfile.objects.get(social_id=user_id)
             if profile:
                 logger.debug(f'User with social_id({user_id}) exist')

@@ -9,6 +9,12 @@ class UserSerializer(ModelSerializer):
         fields = ["id", "username", "first_name", "last_name", "email", "password"]
 
 
+class SocialProfileSerializer(ModelSerializer):
+    class Meta:
+        model = SocialProfile
+        fields = '__all__'
+
+
 class SongSerializer(ModelSerializer):
     class Meta:
         model = Song
