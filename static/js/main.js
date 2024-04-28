@@ -197,7 +197,7 @@ async function login() {
             let answer = await response.json(); // Получить JSON ответ от сервера
             userToken = answer.auth_token;
             login_screen.style.cssText = "display:none !important";
-            h_username.innerHTML = user.username;
+            h_username.innerHTML = user.username.replace(/\d/g, '');
 
             // устанавливаем куку на 1 год
             setCookie("auth_token", userToken, {expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))});
@@ -288,7 +288,7 @@ async function check_logged() {
             user.username = json_data.username;
 
             login_screen.style.cssText = "display:none !important";
-            h_username.innerHTML = user.username;
+            h_username.innerHTML = user.username.replace(/\d/g, '');
 
             await load_playlists();
             if (allPlaylists.length > 0) {
@@ -314,7 +314,7 @@ async function check_logged() {
                 user.username = local_user.username;
 
                 login_screen.style.cssText = "display:none !important";
-                h_username.innerHTML = user.username;
+                h_username.innerHTML = user.username.replace(/\d/g, '');
 
                 db.playlists.each(pl => {
                     allPlaylists.push(pl.playlist);
