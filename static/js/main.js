@@ -184,6 +184,9 @@ async function login() {
     user.username = login_input.value;
     user.password = password_input.value;
 
+    login_input.value = '';
+    password_input.value = '';
+
     try {
         let response = await fetch(DOMAIN + "/auth/token/login", {
             method: "POST",
