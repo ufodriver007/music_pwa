@@ -176,6 +176,7 @@ async function render_vk_button() {
     const container = document.getElementById('VkIdSdkOneTap');
     // Проверка наличия кнопки в разметке.
     if (container) {
+        container.innerHTML = '';
       // Отрисовка кнопки в контейнере с именем приложения APP_NAME, светлой темой и на русском языке.
       oneTap.render({ container: container, scheme: VKID.Scheme.DARK, lang: VKID.Languages.RUS, showAlternativeLogin: true });
     }
