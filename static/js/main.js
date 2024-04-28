@@ -162,23 +162,26 @@ const settings_button = document.getElementById("settings-button");
 const pl_table = document.querySelector(".pl-table");
 const result_table = document.getElementById("result_table");
 
-//Отрисовка кнопки VK
-const VKID = window.VKIDSDK;
-VKID.Config.set({
-  app: VK_APP_ID, // Идентификатор приложения.
-  redirectUrl: VK_REDIRECT_URL, // Адрес для перехода после авторизации.
-  // state: 'dj29fnsadjsd82...' // Произвольная строка состояния приложения.
-});
-// Создание экземпляра кнопки.
-const oneTap = new VKID.OneTap();
-// Получение контейнера из разметки.
-const container = document.getElementById('VkIdSdkOneTap');
-// Проверка наличия кнопки в разметке.
-if (container) {
-  // Отрисовка кнопки в контейнере с именем приложения APP_NAME, светлой темой и на русском языке.
-  oneTap.render({ container: container, scheme: VKID.Scheme.DARK, lang: VKID.Languages.RUS, showAlternativeLogin: true });
+async function render_vk_button() {
+    //Отрисовка кнопки VK
+    const VKID = window.VKIDSDK;
+    VKID.Config.set({
+      app: VK_APP_ID, // Идентификатор приложения.
+      redirectUrl: VK_REDIRECT_URL, // Адрес для перехода после авторизации.
+      // state: 'dj29fnsadjsd82...' // Произвольная строка состояния приложения.
+    });
+    // Создание экземпляра кнопки.
+    const oneTap = new VKID.OneTap();
+    // Получение контейнера из разметки.
+    const container = document.getElementById('VkIdSdkOneTap');
+    // Проверка наличия кнопки в разметке.
+    if (container) {
+      // Отрисовка кнопки в контейнере с именем приложения APP_NAME, светлой темой и на русском языке.
+      oneTap.render({ container: container, scheme: VKID.Scheme.DARK, lang: VKID.Languages.RUS, showAlternativeLogin: true });
+    }
 }
 
+render_vk_button();
 //login
 async function login() {
     user.username = login_input.value;
@@ -239,6 +242,7 @@ async function logout() {
     player.pause();
 
     await delete_user_info();
+    await render_vk_button();
 }
 
 logout_button.addEventListener("click", logout);
