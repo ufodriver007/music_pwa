@@ -204,7 +204,7 @@ async function login() {
             let answer = await response.json(); // Получить JSON ответ от сервера
             userToken = answer.auth_token;
             login_screen.style.cssText = "display:none !important";
-            h_username.innerHTML = user.username.replace(/\d/g, '');
+            h_username.innerHTML = user.username.replace(/\d/g, '');  // удалем из username цифры, т.к. социальные аккаунты имеют username типа Маша402834234892
 
             // устанавливаем куку на 1 год
             setCookie("auth_token", userToken, {expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))});
@@ -296,7 +296,7 @@ async function check_logged() {
             user.username = json_data.username;
 
             login_screen.style.cssText = "display:none !important";
-            h_username.innerHTML = user.username.replace(/\d/g, '');
+            h_username.innerHTML = user.username.replace(/\d/g, '');  // удалем из username цифры, т.к. социальные аккаунты имеют username типа Маша402834234892
 
             await load_playlists();
             if (allPlaylists.length > 0) {
@@ -318,11 +318,10 @@ async function check_logged() {
             if (userToken && local_user) {
                 console.log("Данные будут взяты из куки и локальной БД");
                 user.id = local_user.id;
-                search_input
                 user.username = local_user.username;
 
                 login_screen.style.cssText = "display:none !important";
-                h_username.innerHTML = user.username.replace(/\d/g, '');
+                h_username.innerHTML = user.username.replace(/\d/g, '');  // удалем из username цифры, т.к. социальные аккаунты имеют username типа Маша402834234892
 
                 db.playlists.each(pl => {
                     allPlaylists.push(pl.playlist);
@@ -506,26 +505,40 @@ async function download_files_from_list(all_urls) {
 }
 
 async function save_all_music_files() {
+    save_music_button.classList.add("disabled");
+    save_pl_music_button.classList.add("disabled");
+    save_song_music_button.classList.add("disabled");
     await save_user_info();
 
     let all_urls = allPlaylists.flatMap(pl => pl.songs.map(song => song.url));
     await download_files_from_list(all_urls);
     await draw_playlist(playList);
+    save_music_button.classList.remove("disabled");
+    save_pl_music_button.classList.remove("disabled");
+    save_song_music_button.classList.remove("disabled");
 }
-
 save_music_button.addEventListener("click", save_all_music_files);
 
 async function save_current_playlist_music_files() {
+    save_music_button.classList.add("disabled");
+    save_pl_music_button.classList.add("disabled");
+    save_song_music_button.classList.add("disabled");
     await save_user_info();
 
     let all_urls = playList.songs.flatMap(song => song.url);
     await download_files_from_list(all_urls);
     await draw_playlist(playList);
+    save_music_button.classList.remove("disabled");
+    save_pl_music_button.classList.remove("disabled");
+    save_song_music_button.classList.remove("disabled");
 }
 
 save_pl_music_button.addEventListener("click", save_current_playlist_music_files);
 
 async function save_current_song_file() {
+    save_music_button.classList.add("disabled");
+    save_pl_music_button.classList.add("disabled");
+    save_song_music_button.classList.add("disabled");
     await save_user_info();
 
     if (Object.keys(currentSong).length === 0) {
@@ -539,8 +552,10 @@ async function save_current_song_file() {
             alert("Сначала добавьте песню в плейлист");
         }
     }
+    save_music_button.classList.remove("disabled");
+    save_pl_music_button.classList.remove("disabled");
+    save_song_music_button.classList.remove("disabled");
 }
-
 save_song_music_button.addEventListener("click", save_current_song_file);
 
 async function delete_music_files() {
