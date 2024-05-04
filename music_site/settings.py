@@ -190,6 +190,11 @@ LOGGING = {
             "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
             "propagate": False,
         },
+        "my_middleware": {
+            "handlers": ["file"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
+            "propagate": False,
+        },
     },
     'formatters': {
         'simple': {
