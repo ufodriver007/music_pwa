@@ -1,5 +1,10 @@
+from django.conf import settings
 from django.http import HttpResponseForbidden
 from django.core.cache import cache
+import logging
+
+
+logger = logging.getLogger("my_middleware")
 
 
 class ThrottlingMiddleware:
@@ -9,6 +14,10 @@ class ThrottlingMiddleware:
     def __call__(self, request):
         # Получаем IP-адрес пользователя или другую уникальную строку для идентификации
         client_ip = request.META.get('REMOTE_ADDR') or request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('HTTP_X_REAL_IP')
+
+        if client_ip in settings.BLACKLIST:
+            logger.warning(f'Попытка доступа с blacklist ip({client_ip})')
+            return HttpResponseForbidden('Доступ запрещён.')
 
         # Устанавливаем ключ для кэша, используя IP-адрес и префикс
         cache_key = f'throttle_{client_ip}'
