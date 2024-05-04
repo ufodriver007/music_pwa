@@ -31,6 +31,7 @@ SECRET_KEY = DJANGO_SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if (os.getenv('DEBUG')) == 'True' else False
 
+BLACKLIST = {}
 if os.path.isfile('blacklist.txt'):
     with open('blacklist.txt', 'r') as f:
         BLACKLIST = {item.strip(): '' for item in f}
@@ -183,6 +184,12 @@ LOGGING = {
             "filename": os.path.join(BASE_DIR, "site_log.log"),
             'formatter': 'simple',
         },
+        "admin_file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "site_access_log.log"),
+            'formatter': 'simple',
+        },
     },
     "loggers": {
         "my_views": {
@@ -192,6 +199,11 @@ LOGGING = {
         },
         "my_middleware": {
             "handlers": ["file"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
+            "propagate": False,
+        },
+        "admin": {
+            "handlers": ["admin_file"],
             "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
             "propagate": False,
         },
