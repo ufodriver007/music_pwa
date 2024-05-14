@@ -183,6 +183,7 @@ async function render_vk_button() {
 }
 
 render_vk_button();
+
 //login
 async function login() {
     user.username = login_input.value;

@@ -67,7 +67,7 @@ class SearchView(APIView):
             return Response(cache_data)
         else:
             result = search_song(q)
-            cache.set(q, result, 86400)  # кэшируем на сутки
+            cache.set(q, result, 259200)  # кэшируем на трое суток (86400 - сутки)
             return Response(result)
 
 
@@ -95,15 +95,14 @@ class VKAuth(APIView):
             user_id = resp['response']['user_id']
 
             if SocialProfile.objects.filter(social_id=user_id).exists():
-                logger.debug(f'User with social_id({user_id}) already exists')
+                # Пользователь уже существует
                 social_prof = SocialProfile.objects.get(social_id=user_id)
                 user = User.objects.get(id=social_prof.user.id)
                 password = user.first_name + str(user_id) + os.getenv('SITE_SALT')
             else:
                 # если пользователь НЕ существует, получаем имя, фамилию
-                logger.debug(f'User with social_id({user_id}) does not exist')
 
-                def get_profile_info(token: str):
+                def get_profile_info(token: str) -> dict:
                     request_data = {
                         "access_token": token,
                         "v": "5.199"
@@ -139,6 +138,8 @@ class VKAuth(APIView):
 
         request.session['username'] = user.username
         request.session['password'] = password
+
+        logger.debug(f'VK user {user.username} logged in')
 
         return redirect('index')
 

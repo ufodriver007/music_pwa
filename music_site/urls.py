@@ -33,14 +33,13 @@ urlpatterns = [
     path('api/v1/proxy/', SongDownloadingProxy.as_view(), name='proxy'),
     path('api/v1/search/<str:q>', SearchView.as_view()),
     path('complete/vk/', VKAuth.as_view()),
-    path(r'api/v1/auth/', include('djoser.urls')),
+    path('api/v1/auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.authtoken')),
     path('admin/', admin.site.urls),
 
     re_path(r'^manifest\.json$', TemplateView.as_view(template_name="main/manifest.json", content_type="application/json")),
     re_path(r'^sw\.js$', TemplateView.as_view(template_name="main/sw.js", content_type="application/javascript")),
     re_path(r'^sw-toolbox\.js$', TemplateView.as_view(template_name="main/sw-toolbox.js", content_type="application/javascript")),
-    re_path(r'^\.well-known/pki-validation/4E2AAE81D5EBE09AFB890426A00D0A8C\.txt$', TemplateView.as_view(template_name=".well-known/pki-validation/4E2AAE81D5EBE09AFB890426A00D0A8C.txt", content_type="text/plain")),
 
     path('', IndexView.as_view(), name='index'),
 ]

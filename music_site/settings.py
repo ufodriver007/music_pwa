@@ -92,11 +92,14 @@ WSGI_APPLICATION = 'music_site.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -198,6 +201,11 @@ LOGGING = {
             "propagate": False,
         },
         "my_middleware": {
+            "handlers": ["file"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
+            "propagate": False,
+        },
+        "my_signals": {
             "handlers": ["file"],
             "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
             "propagate": False,
