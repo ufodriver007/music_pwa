@@ -34,7 +34,7 @@ DEBUG = True if (os.getenv('DEBUG')) == 'True' else False
 BLACKLIST = {}
 if os.path.isfile('blacklist.txt'):
     with open('blacklist.txt', 'r') as f:
-        BLACKLIST = {item.strip(): '' for item in f}
+        BLACKLIST = {item.strip(): True for item in f}
 
 # ALLOWED_HOSTS = ['127.0.0.1', '89.23.110.30', 'www.mint-coast.ru']
 ALLOWED_HOSTS = ['*']

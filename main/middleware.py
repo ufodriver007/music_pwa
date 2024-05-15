@@ -15,7 +15,7 @@ class ThrottlingMiddleware:
         # Получаем IP-адрес пользователя или другую уникальную строку для идентификации
         client_ip = request.META.get('REMOTE_ADDR') or request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('HTTP_X_REAL_IP')
 
-        if client_ip in settings.BLACKLIST:
+        if settings.BLACKLIST.get(client_ip):
             logger.warning(f'Попытка доступа с blacklist ip({client_ip})')
             return HttpResponseForbidden('Доступ запрещён.')
 
