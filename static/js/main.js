@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 let DOMAIN = "";
 let VK_APP_ID = 0;
 if (DEBUG) {
