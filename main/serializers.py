@@ -31,11 +31,6 @@ class PlaylistSerializer(ModelSerializer):
     def create(self, validated_data):
         # songs = validated_data.pop('songs', None)
         playlist = Playlist.objects.create(**validated_data)
-
-        # if songs:
-        #     for song in songs:
-        #         playlist.songs.add(song)
-
         return playlist
 
     def update(self, instance, validated_data):
