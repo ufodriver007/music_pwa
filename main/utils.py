@@ -1,13 +1,10 @@
 import os
 import asyncio
 import aiohttp
-import requests
 from vkpymusic import TokenReceiver, Service, ServiceAsync, Logger
 import logging
 import json
-import time
 from vkpymusic.ServiceAsync import logger
-from django.contrib.auth.signals import user_logged_in
 
 
 def get_new_vk_token():
