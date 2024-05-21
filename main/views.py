@@ -62,14 +62,16 @@ class SongViewSet(ModelViewSet):
 class SearchView(APIView):
     def get(self, request, q):
         q = validate_input(q)
+        if q == '':
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
         # Проверяем есть ли в кэше такой запрос
         cache_data = cache.get(q)
         if cache_data:
-            return Response(cache_data)
+            return Response(cache_data, status=status.HTTP_200_OK)
         else:
             result = search_song(q)
             cache.set(q, result, 259200)  # кэшируем на трое суток (86400 - сутки)
-            return Response(result)
+            return Response(result, status=status.HTTP_200_OK)
 
 
 class VKAuth(APIView):
@@ -153,7 +155,7 @@ class ConnectSongAndPlaylistView(APIView):
 
             if request.user == playlist.user:
                 playlist.songs.add(song)
-                return Response({"ok": "Song added to playlist"})
+                return Response({"ok": "Song added to playlist"}, status=status.HTTP_200_OK)
             else:
                 return Response({"Error": "User is not owner of playlist"}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
@@ -168,7 +170,7 @@ class RemoveConnectSongAndPlayView(APIView):
 
             if request.user == playlist.user:
                 playlist.songs.remove(song)
-                return Response({"ok": "Song removed from playlist"})
+                return Response({"ok": "Song removed from playlist"}, status=status.HTTP_200_OK)
             else:
                 return Response({"Error": "User is not owner of playlist"}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
@@ -200,7 +202,7 @@ class SongDownloadingProxy(APIView):
                 response['Content-Disposition'] = f'attachment; filename="{filename}"'
                 return response
             else:
-                return HttpResponse('File not found', status=404)
+                return HttpResponse('File not found', status=status.HTTP_404_NOT_FOUND)
         else:
-            return HttpResponse('URL parameter is missing', status=400)
+            return HttpResponse('URL parameter is missing', status=status.HTTP_400_BAD_REQUEST)
 
