@@ -184,6 +184,13 @@ class DocsView(View):
         return HttpResponse('Доступ запрещён', status=403)
 
 
+class SchemaView(View):
+    def get(self, request):
+        if request.user and request.user.is_staff:
+            return render(request, 'docs.html')
+        return HttpResponse('Доступ запрещён', status=403)
+
+
 class SongDownloadingProxy(APIView):
     def get(self, *args, **kwargs):
         url = self.request.GET.get('url')
