@@ -12,7 +12,7 @@ from rest_framework.decorators import action
 from django.contrib.auth.models import User
 from main.models import SocialProfile, Playlist, Song
 from main.serializers import UserSerializer, PlaylistSerializer, SongSerializer, SocialProfileSerializer
-from main.utils import search_song
+from main.utils import search_song, validate_input
 import requests
 from django.core.cache import cache
 import os
@@ -61,6 +61,7 @@ class SongViewSet(ModelViewSet):
 
 class SearchView(APIView):
     def get(self, request, q):
+        q = validate_input(q)
         # Проверяем есть ли в кэше такой запрос
         cache_data = cache.get(q)
         if cache_data:
@@ -147,10 +148,14 @@ class VKAuth(APIView):
 class ConnectSongAndPlaylistView(APIView):
     def post(self, request, song_id, playlist_id):
         try:
-            song = Song.objects.get(id=song_id)
             playlist = Playlist.objects.get(id=playlist_id)
-            playlist.songs.add(song)
-            return Response({"ok": "Song added to playlist"})
+            song = Song.objects.get(id=song_id)
+
+            if request.user == playlist.user:
+                playlist.songs.add(song)
+                return Response({"ok": "Song added to playlist"})
+            else:
+                return Response({"Error": "User is not owner of playlist"}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
             return Response({"Error": f"{e}"})
 
@@ -160,8 +165,12 @@ class RemoveConnectSongAndPlayView(APIView):
         try:
             song = Song.objects.get(id=song_id)
             playlist = Playlist.objects.get(id=playlist_id)
-            playlist.songs.remove(song)
-            return Response({"ok": "Song removed from playlist"})
+
+            if request.user == playlist.user:
+                playlist.songs.remove(song)
+                return Response({"ok": "Song removed from playlist"})
+            else:
+                return Response({"Error": "User is not owner of playlist"}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
             return Response({"Error": f"{e}"})
 
@@ -181,7 +190,7 @@ class SongDownloadingProxy(APIView):
     def get(self, *args, **kwargs):
         url = self.request.GET.get('url')
 
-        if url:
+        if url and url.startswith('https://cs9') or url.startswith('https://moosic.my.mail.ru/'):
             response = requests.get(url)
 
             if response.status_code == 200:
