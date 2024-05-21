@@ -5,6 +5,8 @@ from vkpymusic import TokenReceiver, Service, ServiceAsync, Logger
 import logging
 import json
 from vkpymusic.ServiceAsync import logger
+import time
+import threading
 
 
 def get_new_vk_token():
@@ -34,6 +36,7 @@ def convert_song_duration(seconds: int) -> str:
 
 
 async def vk_search(query: str, count=100) -> dict[int: dict]:
+    s = time.time()
     service = ServiceAsync(os.getenv('VK_USER_AGENT'), os.getenv('VK_TOKEN'))
     try:
         songs = await service.search_songs_by_text(query, count)
@@ -55,6 +58,7 @@ async def vk_search(query: str, count=100) -> dict[int: dict]:
         except Exception:
             pass
 
+        print(f'Время запроса к ВК: {time.time() - s}')
         return result
     except Exception as e:
         print(e)
@@ -62,6 +66,7 @@ async def vk_search(query: str, count=100) -> dict[int: dict]:
 
 
 async def mail_ru_search(query, count=400):
+    s = time.time()
     headers = {
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0',
         'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -115,6 +120,7 @@ async def mail_ru_search(query, count=400):
     except Exception as e:
         print(e)
 
+    print(f'Время запроса к mail.ru: {time.time() - s}')
     return result
 
 
@@ -126,10 +132,20 @@ def search_song(query: str) -> dict[int: dict]:
     logger.setLevel(logging.WARNING)
 
     async def all_searches(query):
-        res_vk = await vk_search(query, count=200)
-        res_mail = await mail_ru_search(query, count=200)
-        return {**res_vk, **res_mail}
+        try:
+            start = time.time()
+
+            task_vk = asyncio.create_task(vk_search(query, count=200))
+            task_mail = asyncio.create_task(mail_ru_search(query, count=200))
+
+            res_vk, res_mail = await asyncio.gather(task_vk, task_mail)
+
+            t = time.time() - start
+            print(f'Время выполнения запроса: {t}')
+            return {**res_vk, **res_mail}
+        except Exception as e:
+            logger.warning(f'Error: {e}')
+            return None
 
     res = asyncio.run(all_searches(query))
-
     return res
