@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.contrib.admin.views.decorators import staff_member_required
 from rest_framework.routers import SimpleRouter
-from main.views import UserViewSet, PlaylistViewSet, SongViewSet, SearchView, IndexView, ConnectSongAndPlaylistView, RemoveConnectSongAndPlayView, SongDownloadingProxy, VKAuth, DocsView
+from main.views import UserViewSet, PlaylistViewSet, SongViewSet, SearchView, IndexView, ConnectSongAndPlaylistView, RemoveConnectSongAndPlayView, SongDownloadingProxy, VKAuth
 from django.views.generic import TemplateView
 from rest_framework.schemas import get_schema_view
 
@@ -31,7 +31,7 @@ router.register(r'api/v1/song', SongViewSet)
 
 urlpatterns = [
     path('api_schema', staff_member_required(get_schema_view(title="API Schema", description="Guide for the REST API")), name="api_schema"),
-    path('docs/', DocsView.as_view()),
+    path('docs/', staff_member_required(TemplateView.as_view(template_name='docs.html', extra_context={'schema_url': 'api_schema'}))),
 
     path('api/v1/song/<int:song_id>/add/<int:playlist_id>/', ConnectSongAndPlaylistView.as_view()),
     path('api/v1/song/<int:song_id>/remove/<int:playlist_id>/', RemoveConnectSongAndPlayView.as_view()),
