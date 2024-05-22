@@ -922,6 +922,7 @@ async function add_song_to_playlist() {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json;charset=utf-8",
+                Authorization: "Token " + getCookie("auth_token"),
             },
             body: JSON.stringify(song),
         });
@@ -937,6 +938,7 @@ async function add_song_to_playlist() {
                     headers: {
                         Accept: "application/json",
                         "Content-Type": "application/json;charset=utf-8",
+                        Authorization: "Token " + getCookie("auth_token"),
                     },
                     body: "",
                 }
