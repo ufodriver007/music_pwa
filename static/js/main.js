@@ -987,10 +987,10 @@ async function search() {
 
     try {
         let response = await fetch(
-            GENERAL_ENDPOINT + "/search/" + search_input.value
+            GENERAL_ENDPOINT + "/search/?q=" + search_input.value
         );
 
-        if (response.ok) {
+        if (response.status === 200) {
             let json_data = await response.json();
 
             search_results = json_data;
@@ -1032,6 +1032,10 @@ async function search() {
 
                 search_input.value = "";
             }
+        }
+        if (response.status === 408) {
+            alert("Сервера с музыкой отвечают слишком долго. Попробуйте ещё раз.");
+            console.log("Request timeout");
         }
     } catch (error) {
         alert("Сервер недоступен");

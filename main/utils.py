@@ -6,6 +6,7 @@ import logging
 import json
 from vkpymusic.ServiceAsync import logger
 import re
+from async_timeout import timeout
 
 
 def get_new_vk_token():
@@ -128,14 +129,20 @@ def search_song(query: str) -> dict[int: dict]:
 
     async def all_searches(query):
         try:
-            task_vk = asyncio.create_task(vk_search(query, count=200))
-            task_mail = asyncio.create_task(mail_ru_search(query, count=200))
+            async with timeout(7):  # таймаут в секундах
+                task_vk = asyncio.create_task(vk_search(query, count=200))
+                task_mail = asyncio.create_task(mail_ru_search(query, count=200))
 
-            res_vk, res_mail = await asyncio.gather(task_vk, task_mail)
-            return {**res_vk, **res_mail}
+                res_vk, res_mail = await asyncio.gather(task_vk, task_mail)
+                return {**res_vk, **res_mail}
+
+        except asyncio.TimeoutError as e:
+            logger.warning(f'Task timeout: {e}')
+            return {0: 'Error: Timeout'}
+
         except Exception as e:
             logger.warning(f'Error: {e}')
-            return None
+            return {}
 
     res = asyncio.run(all_searches(query))
     return res

@@ -60,8 +60,8 @@ class SongViewSet(ModelViewSet):
 
 
 class SearchView(APIView):
-    def get(self, request, q):
-        q = validate_input(q)
+    def get(self, request):
+        q = validate_input(request.GET.get('q'))
         if q == '':
             return Response({}, status=status.HTTP_204_NO_CONTENT)
         # Проверяем есть ли в кэше такой запрос
@@ -70,8 +70,11 @@ class SearchView(APIView):
             return Response(cache_data, status=status.HTTP_200_OK)
         else:
             result = search_song(q)
-            cache.set(q, result, 259200)  # кэшируем на трое суток (86400 - сутки)
-            return Response(result, status=status.HTTP_200_OK)
+            if result == {0: 'Error: Timeout'}:
+                return Response({}, status=status.HTTP_408_REQUEST_TIMEOUT)
+            else:
+                cache.set(q, result, 259200)  # кэшируем на трое суток (86400 - сутки)
+                return Response(result, status=status.HTTP_200_OK)
 
 
 class VKAuth(APIView):
@@ -192,7 +195,9 @@ class SongDownloadingProxy(APIView):
     def get(self, *args, **kwargs):
         url = self.request.GET.get('url')
 
-        if url and url.startswith('https://cs9') or url.startswith('https://moosic.my.mail.ru/'):
+        if (url and url.startswith('https://cs9')
+                or url.startswith('https://moosic.my.mail.ru/')
+                or url.startswith('https://psv')):
             response = requests.get(url)
 
             if response.status_code == 200:
