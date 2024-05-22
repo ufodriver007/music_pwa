@@ -266,7 +266,7 @@ class AddSongToPlaylistTest(TestCase):
 class SearchTest(TestCase):
     def test_search(self):
         query = 'Rammstein'
-        response = self.client.get(f'/api/v1/search/{query}')
+        response = self.client.get(f'/api/v1/search/?q={query}')
         self.assertTrue(response.data.get(0, False))
 
 

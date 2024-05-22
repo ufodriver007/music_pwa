@@ -195,7 +195,7 @@ class SongDownloadingProxy(APIView):
     def get(self, *args, **kwargs):
         url = self.request.GET.get('url')
 
-        if (url and url.startswith('https://cs9')
+        if (url and url.startswith('https://cs')
                 or url.startswith('https://moosic.my.mail.ru/')
                 or url.startswith('https://psv')):
             response = requests.get(url)
