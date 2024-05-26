@@ -959,7 +959,8 @@ async function add_song_to_playlist() {
             const usr = await db.user.where('username').equals(user.username).first();
             if (usr) {
                 if (usr.savelocal) {
-                    await save_music_file(this.id.slice(8));
+                    // await save_music_file(this.id.slice(8));
+                    await save_music_file(song.url);
                 }
             }
         } else {
