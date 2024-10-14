@@ -29,7 +29,6 @@ class PlaylistSerializer(ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        # songs = validated_data.pop('songs', None)
         playlist = Playlist.objects.create(**validated_data)
         return playlist
 

@@ -203,11 +203,11 @@ class SongDownloadingProxy(APIView):
             if response.status_code == 200:
                 file_content = response.content
                 filename = url.split('/')[-1]  # Получаем имя файла из URL
-                response = HttpResponse(file_content, content_type='application/octet-stream')
-                response['Content-Disposition'] = f'attachment; filename="{filename}"'
-                return response
+                resp = HttpResponse(file_content, content_type='application/octet-stream')
+                resp['Content-Disposition'] = f'attachment; filename="{filename}"'
+                # теперь у response есть заголовки {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="BYpw0iX6bpdvj_X.mp3"'}
+                return resp
             else:
                 return HttpResponse('File not found', status=status.HTTP_404_NOT_FOUND)
         else:
             return HttpResponse('URL parameter is missing', status=status.HTTP_400_BAD_REQUEST)
-

@@ -6,7 +6,7 @@ if (DEBUG) {
     VK_APP_ID = 0;
 } else {
     DOMAIN = "https://www.mint-coast.ru";
-    VK_APP_ID = 51913447;
+    VK_APP_ID = 51787795;
 }
 const GENERAL_ENDPOINT = DOMAIN + "/api/v1";
 const VK_REDIRECT_URL = DOMAIN + "/complete/vk";
